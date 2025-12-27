@@ -75,6 +75,74 @@ More article text here
         self.assertTrue(category_in_text(text, "تاريخ"))
 
 
+class TestGetUnusedCategories(unittest.TestCase):
+    """Test the unused categories fetching functionality."""
+    
+    def test_get_unused_categories_returns_results(self):
+        """Test that get_unused_categories parses API response correctly."""
+        from unused_categories_bot import get_unused_categories
+        from unittest.mock import Mock
+        
+        # Create mock site object
+        mock_site = Mock()
+        mock_site.get.return_value = {
+            'query': {
+                'querypage': {
+                    'name': 'Unusedcategories',
+                    'results': [
+                        {'title': 'تصنيف:تاريخ', 'ns': 14},
+                        {'title': 'تصنيف:علوم', 'ns': 14},
+                    ]
+                }
+            }
+        }
+        
+        categories = get_unused_categories(mock_site, limit=10)
+        
+        # Verify the API was called correctly
+        mock_site.get.assert_called_once_with(
+            'query', list='querypage', qppage='Unusedcategories', qplimit=10
+        )
+        
+        # Verify results are returned
+        self.assertEqual(len(categories), 2)
+        self.assertEqual(categories[0]['title'], 'تصنيف:تاريخ')
+        self.assertEqual(categories[1]['title'], 'تصنيف:علوم')
+    
+    def test_get_unused_categories_empty_results(self):
+        """Test that get_unused_categories handles empty results."""
+        from unused_categories_bot import get_unused_categories
+        from unittest.mock import Mock
+        
+        # Create mock site object with empty results
+        mock_site = Mock()
+        mock_site.get.return_value = {
+            'query': {
+                'querypage': {
+                    'name': 'Unusedcategories',
+                    'results': []
+                }
+            }
+        }
+        
+        categories = get_unused_categories(mock_site, limit=10)
+        
+        self.assertEqual(len(categories), 0)
+    
+    def test_get_unused_categories_missing_query(self):
+        """Test that get_unused_categories handles missing query key."""
+        from unused_categories_bot import get_unused_categories
+        from unittest.mock import Mock
+        
+        # Create mock site object with malformed response
+        mock_site = Mock()
+        mock_site.get.return_value = {}
+        
+        categories = get_unused_categories(mock_site, limit=10)
+        
+        self.assertEqual(len(categories), 0)
+
+
 class TestCredentialLoading(unittest.TestCase):
     """Test credential loading functionality."""
     

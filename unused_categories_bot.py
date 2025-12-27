@@ -14,7 +14,6 @@ import os
 import sys
 import mwclient
 import re
-import itertools
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -67,12 +66,19 @@ def get_unused_categories(site, limit=10):
         limit: Maximum number of categories to fetch
     
     Returns:
-        list: List of unused category page objects
+        list: List of unused category page objects (dicts with 'title' key)
     """
     print(f"Fetching up to {limit} unused categories...")
     
-    # Use itertools.islice to ensure we only fetch the specified number
-    categories = list(itertools.islice(site.querypage('Unusedcategories'), limit))
+    # Use the MediaWiki API's querypage list to get unused categories
+    # API: action=query&list=querypage&qppage=Unusedcategories&qplimit=N
+    result = site.get('query', list='querypage', qppage='Unusedcategories', qplimit=limit)
+    
+    categories = []
+    if 'query' in result and 'querypage' in result['query']:
+        querypage_data = result['query']['querypage']
+        if 'results' in querypage_data:
+            categories = querypage_data['results']
     
     print(f"Found {len(categories)} unused categories")
     return categories
