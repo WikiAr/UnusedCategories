@@ -42,6 +42,19 @@ export PASSWORD="your_bot_password_token"
 python unused_categories_bot.py
 ```
 
+### Interactive Confirmation Mode
+
+Run with the `ask` argument to enable interactive confirmation mode. In this mode, the bot will ask for confirmation before each edit:
+
+```bash
+python unused_categories_bot.py ask
+```
+
+When prompted, you can respond with:
+- **Empty** or **y** or **yes**: Approve this edit and continue asking for the next one
+- **n** or **no**: Skip this edit and continue to the next one
+- **a**: Approve all remaining edits without asking again
+
 ## How it works
 
 ```

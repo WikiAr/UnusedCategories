@@ -14,9 +14,97 @@ import os
 import sys
 import mwclient
 import re
+import difflib
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Global state for interactive confirmation mode
+_ask_mode = False
+_auto_approve_all = False
+
+
+def set_ask_mode(enabled):
+    """
+    Enable or disable interactive confirmation mode.
+    
+    Args:
+        enabled: True to enable ask mode, False to disable
+    """
+    global _ask_mode
+    _ask_mode = enabled
+
+
+def is_ask_mode():
+    """
+    Check if interactive confirmation mode is enabled.
+    
+    Returns:
+        bool: True if ask mode is enabled
+    """
+    return _ask_mode
+
+
+def confirm_edit(page_title, old_text, new_text):
+    """
+    Ask user to confirm an edit in interactive mode.
+    
+    Shows the target page, text diff, and prompts for confirmation.
+    
+    Args:
+        page_title: Title of the page being edited
+        old_text: Original page text
+        new_text: New page text after edit
+    
+    Returns:
+        bool: True if edit should proceed, False to skip
+    """
+    global _auto_approve_all
+    
+    # If auto-approve is enabled, skip confirmation
+    if _auto_approve_all:
+        return True
+    
+    # If not in ask mode, proceed without confirmation
+    if not _ask_mode:
+        return True
+    
+    # Show target page
+    print(f"\n{'='*60}")
+    print(f"Target: {page_title}")
+    print(f"{'='*60}")
+    
+    # Show diff
+    old_lines = old_text.splitlines(keepends=True)
+    new_lines = new_text.splitlines(keepends=True)
+    diff = difflib.unified_diff(old_lines, new_lines, fromfile='before', tofile='after', lineterm='')
+    diff_text = ''.join(diff)
+    
+    if diff_text:
+        print("Diff:")
+        print(diff_text)
+    else:
+        print("No changes detected.")
+    
+    print(f"{'='*60}")
+    
+    # Prompt for confirmation
+    print("Options: [y]es / [n]o / [a]ll (approve all remaining)")
+    response = input("Confirm edit? [Y/n/a]: ").strip().lower()
+    
+    # Empty response or "y"/"yes" means proceed with this edit
+    if response in ('', 'y', 'yes'):
+        return True
+    
+    # "a" means approve all remaining edits
+    if response == 'a':
+        _auto_approve_all = True
+        print("Auto-approving all remaining edits.")
+        return True
+    
+    # Any other response means skip
+    print("Edit skipped.")
+    return False
 
 
 def is_hidden_category(category_page):
@@ -368,6 +456,10 @@ def add_category_to_page(page, category_name, summary):
         # Add category at the end of the text
         new_text = text.rstrip() + f"\n[[تصنيف:{category_name}]]"
         
+        # Ask for confirmation if in ask mode
+        if not confirm_edit(page.name, text, new_text):
+            return False
+        
         # Save the page
         page.save(new_text, summary=summary)
         return True
@@ -463,7 +555,15 @@ def process_category(ar_site, en_site, ar_category):
 def main():
     """
     Main function to run the bot.
+    
+    Command line arguments:
+        ask: Enable interactive confirmation mode for each edit
     """
+    # Check for "ask" argument to enable interactive confirmation mode
+    if 'ask' in sys.argv:
+        set_ask_mode(True)
+        print("Interactive confirmation mode enabled.")
+    
     print("Starting Unused Categories Bot for Arabic Wikipedia")
     print("="*60)
     
