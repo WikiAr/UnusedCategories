@@ -272,8 +272,11 @@ def is_redirect_page(page):
     """
     try:
         return page.redirect
-    except (mwclient.errors.APIError, AttributeError) as e:
-        print(f"Error checking redirect status for {page.name}: {e}")
+    except mwclient.errors.APIError as e:
+        print(f"API error checking redirect status for {page.name}: {e}")
+        return False
+    except AttributeError as e:
+        print(f"Attribute error checking redirect status for {page.name}: {e}")
         return False
 
 
