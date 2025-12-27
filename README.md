@@ -27,8 +27,8 @@ pip install -r requirements.txt
 
 Set the following environment variables:
 
-- `WIKI_USERNAME`: Your Wikipedia bot username
-- `WIKI_PASSWORD`: Your Wikipedia bot password
+- `WM_USERNAME`: Your Wikipedia bot username
+- `PASSWORD`: Your Wikipedia bot password
 
 Example:
 ```bash
