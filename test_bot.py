@@ -368,6 +368,58 @@ class TestHiddenCategoryCheck(unittest.TestCase):
         self.assertFalse(is_hidden_category(mock_page))
 
 
+class TestRedirectPageCheck(unittest.TestCase):
+    """Test the redirect page check functionality."""
+    
+    def test_redirect_page_detected(self):
+        """Test that redirect page is detected."""
+        from unused_categories_bot import is_redirect_page
+        from unittest.mock import Mock
+        
+        mock_page = Mock()
+        mock_page.redirect = True
+        
+        self.assertTrue(is_redirect_page(mock_page))
+    
+    def test_non_redirect_page_not_flagged(self):
+        """Test that non-redirect page is not flagged."""
+        from unused_categories_bot import is_redirect_page
+        from unittest.mock import Mock
+        
+        mock_page = Mock()
+        mock_page.redirect = False
+        
+        self.assertFalse(is_redirect_page(mock_page))
+    
+    def test_redirect_check_handles_api_error(self):
+        """Test that redirect check handles API errors gracefully."""
+        from unused_categories_bot import is_redirect_page
+        from unittest.mock import Mock, PropertyMock
+        import mwclient.errors
+        
+        mock_page = Mock()
+        mock_page.name = "Test Page"
+        type(mock_page).redirect = PropertyMock(side_effect=mwclient.errors.APIError('error', 'info', {}))
+        
+        # Should return False on error
+        self.assertFalse(is_redirect_page(mock_page))
+    
+    def test_add_category_skips_redirect_page(self):
+        """Test that add_category_to_page skips redirect pages."""
+        from unused_categories_bot import add_category_to_page
+        from unittest.mock import Mock
+        
+        mock_page = Mock()
+        mock_page.redirect = True
+        mock_page.name = "Test Redirect Page"
+        
+        # Should return False for redirect pages without calling text() or save()
+        result = add_category_to_page(mock_page, "TestCategory", "Test summary")
+        self.assertFalse(result)
+        mock_page.text.assert_not_called()
+        mock_page.save.assert_not_called()
+
+
 class TestAskMode(unittest.TestCase):
     """Test the interactive confirmation mode functionality."""
     
