@@ -15,7 +15,9 @@ import sys
 import mwclient
 import re
 import itertools
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def load_credentials():
     """
