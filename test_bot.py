@@ -377,7 +377,8 @@ class TestRedirectPageCheck(unittest.TestCase):
         from unittest.mock import Mock
         
         mock_page = Mock()
-        mock_page.redirect = True
+        # redirects_to() returns the target page for redirects
+        mock_page.redirects_to.return_value = Mock()  # Non-None means it's a redirect
         
         self.assertTrue(is_redirect_page(mock_page))
     
@@ -387,19 +388,20 @@ class TestRedirectPageCheck(unittest.TestCase):
         from unittest.mock import Mock
         
         mock_page = Mock()
-        mock_page.redirect = False
+        # redirects_to() returns None for non-redirects
+        mock_page.redirects_to.return_value = None
         
         self.assertFalse(is_redirect_page(mock_page))
     
     def test_redirect_check_handles_api_error(self):
         """Test that redirect check handles API errors gracefully."""
         from unused_categories_bot import is_redirect_page
-        from unittest.mock import Mock, PropertyMock
+        from unittest.mock import Mock
         import mwclient.errors
         
         mock_page = Mock()
         mock_page.name = "Test Page"
-        type(mock_page).redirect = PropertyMock(side_effect=mwclient.errors.APIError('error', 'info', {}))
+        mock_page.redirects_to.side_effect = mwclient.errors.APIError('error', 'info', {})
         
         # Should return False on error
         self.assertFalse(is_redirect_page(mock_page))
@@ -410,7 +412,8 @@ class TestRedirectPageCheck(unittest.TestCase):
         from unittest.mock import Mock
         
         mock_page = Mock()
-        mock_page.redirect = True
+        # redirects_to() returns the target page for redirects
+        mock_page.redirects_to.return_value = Mock()  # Non-None means it's a redirect
         mock_page.name = "Test Redirect Page"
         
         # Should return False for redirect pages without calling text() or save()

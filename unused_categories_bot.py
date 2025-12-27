@@ -264,6 +264,9 @@ def is_redirect_page(page):
     """
     Check if a page is a redirect.
     
+    Uses mwclient's redirects_to() method which returns None if the page
+    is not a redirect, or the target page if it is a redirect.
+    
     Args:
         page: mwclient.Page object
     
@@ -271,7 +274,7 @@ def is_redirect_page(page):
         bool: True if page is a redirect, False otherwise
     """
     try:
-        return page.redirect
+        return page.redirects_to() is not None
     except mwclient.errors.APIError as e:
         print(f"API error checking redirect status for {page.name}: {e}")
         return False
