@@ -27,8 +27,8 @@ def load_credentials():
     Raises:
         ValueError: If credentials are not found in environment
     """
-    username = os.environ.get('WIKI_USERNAME')
-    password = os.environ.get('WIKI_PASSWORD')
+    username = os.environ.get('WM_USERNAME')
+    password = os.environ.get('PASSWORD')
     
     if not username or not password:
         raise ValueError(
