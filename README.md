@@ -32,8 +32,8 @@ Set the following environment variables:
 
 Example:
 ```bash
-export WIKI_USERNAME="YourBotName@YourBotPassword"
-export WIKI_PASSWORD="your_bot_password_token"
+export WM_USERNAME="YourBotName@YourBotPassword"
+export PASSWORD="your_bot_password_token"
 ```
 
 ## Usage
