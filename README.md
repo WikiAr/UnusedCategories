@@ -47,26 +47,43 @@ python unused_categories_bot.py
 ```
 Start
   ↓
-Load credentials from environment variables
+Fetch unused Arabic categories
   ↓
-Connect to Arabic Wikipedia using mwclient
+For each Arabic category:
   ↓
-Fetch unusedcategories list
+  Filter Arabic category:
+    - hidden?
+    - maintenance (صيانة)?
+    - stub (بذور)?
+    - starts with بذرة?
+  ↓ (Skip if any true)
   ↓
-For each category:
+  Get English interwiki link
+  ↓ (Skip if not found)
   ↓
-  Get English Wikipedia link of category 
+  Filter English category:
+    - hidden?
+    - maintenance?
+    - stub?
+  ↓ (Skip if any true)
   ↓
   Get English category members
   ↓
-  For each member article:
+  For each English article:
     ↓
-    Get Arabic Wikipedia link
+    Load English wikitext
     ↓
-    Search for the Arabic category in text
+    Category explicitly present in text?
+        ├─ No → Skip article (category added via template)
     ↓
-    Not Found in text?
-    ├─ Add it to the bottom of the text and save it with summary "بوت: أضاف 1 تصنيف"
+    Get Arabic interwiki link
+        ├─ No → Skip article
+    ↓
+    Load Arabic article text
+    ↓
+    Arabic category already exists?
+        ├─ Yes → Skip
+        ├─ No → Append category and save with summary "بوت: أضاف 1 تصنيف"
   ↓
 End
 ```
@@ -74,6 +91,10 @@ End
 ## Features
 
 - Automatically skips articles that already have the category
+- Filters out hidden categories (both Arabic and English)
+- Filters out maintenance categories (صيانة in Arabic, "maintenance" in English)
+- Filters out stub categories (بذور/بذرة in Arabic, "stub" in English)
+- Only processes articles where the category is explicitly in the text (not added via templates)
 - Uses proper Arabic category syntax (`[[تصنيف:CategoryName]]`)
 - Includes error handling for network issues and missing interwiki links
 - Provides detailed logging of all operations

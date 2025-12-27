@@ -173,6 +173,20 @@ def should_skip_en_category(category_page):
     return False
 
 
+def _build_category_pattern(category_name, prefix_pattern):
+    """
+    Build a regex pattern for matching a category in text.
+    
+    Args:
+        category_name: Name of the category (without prefix)
+        prefix_pattern: Regex pattern for the category prefix (e.g., 'Category' or '(?:تصنيف|Category)')
+    
+    Returns:
+        str: Regex pattern for matching the category
+    """
+    return r'\[\[\s*' + prefix_pattern + r'\s*:\s*' + re.escape(category_name) + r'\s*(?:\|[^\]]*?)?\]\]'
+
+
 def en_page_has_category_in_text(page, category_name):
     """
     Check if an English page contains the category directly in its text.
@@ -197,7 +211,7 @@ def en_page_has_category_in_text(page, category_name):
             cat_name_without_prefix = category_name
         
         # Match [[Category:...]] with optional sort key
-        pattern = r'\[\[\s*Category\s*:\s*' + re.escape(cat_name_without_prefix) + r'\s*(?:\|[^\]]*?)?\]\]'
+        pattern = _build_category_pattern(cat_name_without_prefix, 'Category')
         return bool(re.search(pattern, text, re.IGNORECASE))
     except (mwclient.errors.APIError, AttributeError) as e:
         print(f"Error checking category in text for {page.name}: {e}")
@@ -328,7 +342,7 @@ def category_in_text(text, category_name):
         bool: True if category is found in text, False otherwise
     """
     # Match [[تصنيف:...]] or [[Category:...]]
-    pattern = r'\[\[\s*(?:تصنيف|Category)\s*:\s*' + re.escape(category_name) + r'\s*(?:\|[^\]]*?)?\]\]'
+    pattern = _build_category_pattern(category_name, '(?:تصنيف|Category)')
     return bool(re.search(pattern, text, re.IGNORECASE))
 
 
