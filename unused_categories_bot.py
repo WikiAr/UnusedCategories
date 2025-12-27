@@ -14,6 +14,7 @@ import os
 import sys
 import mwclient
 import re
+import itertools
 
 
 def load_credentials():
@@ -67,10 +68,9 @@ def get_unused_categories(site, limit=10):
         list: List of unused category page objects
     """
     print(f"Fetching up to {limit} unused categories...")
-    categories = []
     
-    for category in site.querypage('Unusedcategories', limit=limit):
-        categories.append(category)
+    # Use itertools.islice to ensure we only fetch the specified number
+    categories = list(itertools.islice(site.querypage('Unusedcategories'), limit))
     
     print(f"Found {len(categories)} unused categories")
     return categories
@@ -92,7 +92,7 @@ def get_interwiki_link(page, target_lang):
         for lang, title in langlinks:
             if lang == target_lang:
                 return title
-    except Exception as e:
+    except (mwclient.errors.APIError, AttributeError) as e:
         print(f"Error getting interwiki link for {page.name}: {e}")
     
     return None
@@ -112,13 +112,9 @@ def get_category_members(site, category_title, namespace=0):
     """
     try:
         category = site.pages[category_title]
-        members = []
-        
-        for member in category.members(namespace=namespace):
-            members.append(member)
-        
-        return members
-    except Exception as e:
+        # Use list comprehension for efficiency
+        return list(category.members(namespace=namespace))
+    except (mwclient.errors.APIError, KeyError) as e:
         print(f"Error getting category members for {category_title}: {e}")
         return []
 
@@ -165,7 +161,7 @@ def add_category_to_page(page, category_name, summary):
         page.save(new_text, summary=summary)
         return True
         
-    except Exception as e:
+    except (mwclient.errors.APIError, mwclient.errors.EditError) as e:
         print(f"Error adding category to {page.name}: {e}")
         return False
 
