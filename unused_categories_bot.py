@@ -260,6 +260,29 @@ def should_skip_en_category(category_page):
     return False
 
 
+def is_redirect_page(page):
+    """
+    Check if a page is a redirect.
+    
+    Uses mwclient's redirects_to() method which returns None if the page
+    is not a redirect, or the target page if it is a redirect.
+    
+    Args:
+        page: mwclient.Page object
+    
+    Returns:
+        bool: True if page is a redirect, False otherwise
+    """
+    try:
+        return page.redirects_to() is not None
+    except mwclient.errors.APIError as e:
+        print(f"API error checking redirect status for {page.name}: {e}")
+        return False
+    except AttributeError as e:
+        print(f"Attribute error checking redirect status for {page.name}: {e}")
+        return False
+
+
 def _build_category_pattern(category_name, prefix_pattern):
     """
     Build a regex pattern for matching a category in text.
@@ -446,6 +469,10 @@ def add_category_to_page(page, category_name, summary):
         bool: True if category was added, False otherwise
     """
     try:
+        # Skip redirect pages
+        if is_redirect_page(page):
+            return False
+        
         text = page.text()
         
         # Check if category already exists
