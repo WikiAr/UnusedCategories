@@ -1,7 +1,6 @@
 import sys
 import os
 import pytest
-import unittest
 # Add parent directory to path to import utils module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -13,50 +12,43 @@ from utils import (
 )
 
 
-class TestCategoryFiltering(unittest.TestCase):
+class TestCategoryFiltering:
     """Test the category filtering functionality."""
 
     def test_ar_stub_category_starts_with_budhra(self):
-        """Test that Arabic category starting with بذرة is detected as stub."""
-
-        self.assertTrue(is_ar_stub_or_maintenance_category("بذرة علم"))
-        self.assertTrue(is_ar_stub_or_maintenance_category("تصنيف:بذرة علم"))
+        """Arabic category starting with بذرة should be detected as stub."""
+        assert is_ar_stub_or_maintenance_category("بذرة علم") is True
+        assert is_ar_stub_or_maintenance_category("تصنيف:بذرة علم") is True
 
     def test_ar_stub_category_contains_budhur(self):
-        """Test that Arabic category containing بذور is detected as stub."""
-
-        self.assertTrue(is_ar_stub_or_maintenance_category("مقالات بذور"))
-        self.assertTrue(is_ar_stub_or_maintenance_category("تصنيف:بذور علم"))
+        """Arabic category containing بذور should be detected as stub."""
+        assert is_ar_stub_or_maintenance_category("مقالات بذور") is True
+        assert is_ar_stub_or_maintenance_category("تصنيف:بذور علم") is True
 
     def test_ar_maintenance_category(self):
-        """Test that Arabic maintenance category is detected."""
-
-        self.assertTrue(is_ar_stub_or_maintenance_category("صيانة ويكيبيديا"))
-        self.assertTrue(is_ar_stub_or_maintenance_category("تصنيف:صيانة"))
+        """Arabic maintenance category should be detected."""
+        assert is_ar_stub_or_maintenance_category("صيانة ويكيبيديا") is True
+        assert is_ar_stub_or_maintenance_category("تصنيف:صيانة") is True
 
     def test_ar_normal_category(self):
-        """Test that normal Arabic category is not flagged."""
-
-        self.assertFalse(is_ar_stub_or_maintenance_category("تاريخ"))
-        self.assertFalse(is_ar_stub_or_maintenance_category("تصنيف:علوم"))
+        """Normal Arabic category should not be flagged."""
+        assert is_ar_stub_or_maintenance_category("تاريخ") is False
+        assert is_ar_stub_or_maintenance_category("تصنيف:علوم") is False
 
     def test_en_stub_category(self):
-        """Test that English stub category is detected."""
-
-        self.assertTrue(is_en_stub_or_maintenance_category("Science stubs"))
-        self.assertTrue(is_en_stub_or_maintenance_category("Category:Stub articles"))
+        """English stub category should be detected."""
+        assert is_en_stub_or_maintenance_category("Science stubs") is True
+        assert is_en_stub_or_maintenance_category("Category:Stub articles") is True
 
     def test_en_maintenance_category(self):
-        """Test that English maintenance category is detected."""
-
-        self.assertTrue(is_en_stub_or_maintenance_category("Wikipedia maintenance"))
-        self.assertTrue(is_en_stub_or_maintenance_category("Category:Maintenance templates"))
+        """English maintenance category should be detected."""
+        assert is_en_stub_or_maintenance_category("Wikipedia maintenance") is True
+        assert is_en_stub_or_maintenance_category("Category:Maintenance templates") is True
 
     def test_en_normal_category(self):
-        """Test that normal English category is not flagged."""
-
-        self.assertFalse(is_en_stub_or_maintenance_category("History"))
-        self.assertFalse(is_en_stub_or_maintenance_category("Category:Science"))
+        """Normal English category should not be flagged."""
+        assert is_en_stub_or_maintenance_category("History") is False
+        assert is_en_stub_or_maintenance_category("Category:Science") is False
 
 
 class TestCategoryDetection:
