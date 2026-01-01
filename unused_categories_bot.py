@@ -264,7 +264,7 @@ def connect_to_wikipedia(site_url, username, password):
     return site
 
 
-def get_unused_categories(site, limit=1000):
+def get_unused_categories(site, limit=1000) -> list:
     """
     Fetch unused categories from Wikipedia.
 
