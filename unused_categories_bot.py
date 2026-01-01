@@ -8,6 +8,9 @@ This script processes unused categories on Arabic Wikipedia by:
 3. Getting members of English categories
 4. Finding Arabic equivalents of those articles
 5. Adding the Arabic category to articles that don't have it
+
+python unused_categories_bot.py ask
+
 """
 
 import os
