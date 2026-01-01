@@ -381,7 +381,3 @@ class TestAskMode(unittest.TestCase):
         # Reset for other tests
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(False)
-
-
-if __name__ == '__main__':
-    unittest.main()

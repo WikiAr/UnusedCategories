@@ -16,7 +16,7 @@ The bot works by:
 - **Language**: Python 3.6+
 - **Main Library**: mwclient (MediaWiki client library)
 - **Environment**: python-dotenv (for loading environment variables)
-- **Testing**: unittest (Python standard library)
+- **Testing**: pytest (Python standard library)
 
 ## Project Structure
 
@@ -36,10 +36,10 @@ The bot works by:
 
 Run tests with:
 ```bash
-python -m unittest test_bot.py
+python -m pytest test_bot.py
 ```
 
-Tests are written using Python's unittest framework and do not require a Wikipedia connection.
+Tests are written using Python's pytest framework and do not require a Wikipedia connection.
 
 ## Environment Variables
 
