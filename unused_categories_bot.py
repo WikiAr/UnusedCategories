@@ -14,15 +14,17 @@ import os
 import sys
 import mwclient
 from dotenv import load_dotenv
-from utils import diff
 
+from wiki_api import get_category_members_pages, sub_cats_query_pages, get_interwiki_link
 from utils import (
+    showDiff,
     logger,
     en_page_has_category_in_text,
     category_in_text,
     is_ar_stub_or_maintenance_category,
     is_en_stub_or_maintenance_category,
 )
+
 logger.set_level("INFO")
 load_dotenv()
 
@@ -82,7 +84,7 @@ def confirm_edit(page_title, old_text, new_text):
     logger.info(f"{'='*60}")
 
     # Show diff
-    diff.showDiff(old_text, new_text)
+    showDiff(old_text, new_text)
     logger.info(f"{'='*60}")
 
     # Prompt for confirmation
@@ -286,49 +288,6 @@ def get_unused_categories(site, limit=1000) -> list:
     return categories
 
 
-def get_interwiki_link(page, target_lang):
-    """
-    Get interwiki link from a page to a target language.
-
-    Args:
-        page: mwclient.Page object
-        target_lang: Target language code (e.g., 'en')
-
-    Returns:
-        str or None: Title of the page in target language, or None if not found
-    """
-    try:
-        langlinks = page.langlinks()
-        for lang, title in langlinks:
-            if lang == target_lang:
-                return title
-    except (mwclient.errors.APIError, AttributeError) as e:
-        logger.warning(f"Error getting interwiki link for {page.name}: {e}")
-
-    return None
-
-
-def get_category_members(site, category_title, namespace=0) -> list:
-    """
-    Get members of a category.
-
-    Args:
-        site: mwclient.Site object
-        category_title: Title of the category
-        namespace: Namespace to filter members (0 for articles)
-
-    Returns:
-        list: List of page objects that are members of the category
-    """
-    try:
-        category = site.pages[category_title]
-        # Use list comprehension for efficiency
-        return list(category.members(namespace=namespace))
-    except (mwclient.errors.APIError, KeyError) as e:
-        logger.warning(f"Error getting category members for {category_title}: {e}")
-        return []
-
-
 def add_category_to_page(page, category_name, summary):
     """
     Add a category to a page if it's not already there.
@@ -411,7 +370,8 @@ def process_category(ar_site, en_site, category_name):
         return
 
     # Get members of the English category
-    en_members = get_category_members(en_site, en_category_title, namespace="0,14")
+    # en_members = get_category_members_pages(en_site, en_category_title, namespace="0,14")
+    en_members = sub_cats_query_pages(en_site, en_category_title, namespace="0,14")
 
     if not en_members:
         logger.info(f"No members found in English category {en_category_title}")
@@ -421,7 +381,7 @@ def process_category(ar_site, en_site, category_name):
 
     # Process each member
     added_count = 0
-    for n, en_member in enumerate(en_members, start=1):
+    for n, (en_member, ar_title) in enumerate(en_members.items(), start=1):
         logger.info(f"<<purple>> Processing member {n}/{len(en_members)}: {en_member.name}")
         # Check if the English page contains the category directly in its text
         # (not added via a template)
@@ -443,24 +403,21 @@ def process_category(ar_site, en_site, category_name):
             logger.info(f"  Skipping {en_page_title}: category not in text (possibly added via template)")
             continue
 
-        # Get Arabic Wikipedia link
-        ar_article_title = get_interwiki_link(en_member, 'ar')
-
-        if not ar_article_title:
+        if not ar_title:
             logger.info(f"No Arabic Wikipedia link found for {en_page_title}")
             continue
 
-        logger.info(f"Checking Arabic article: {ar_article_title}/{en_page_title}")
+        logger.info(f"Checking Arabic article: {ar_title}/{en_page_title}")
 
         # Get Arabic article page
-        ar_article = ar_site.pages[ar_article_title]
+        ar_article = ar_site.pages[ar_title]
 
         # Add category if not present
         if add_category_to_page(ar_article, category_name_without_prefix, "بوت: أضاف 1 تصنيف"):
-            logger.info(f"    ✓ Added category to {ar_article_title}")
+            logger.info(f"    ✓ Added category to {ar_title}")
             added_count += 1
         else:
-            logger.info(f"    - Category already exists in {ar_article_title}")
+            logger.info(f"    - Category already exists in {ar_title}")
 
     logger.info(f"Total categories added: {added_count}")
 
