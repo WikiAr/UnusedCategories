@@ -2,120 +2,112 @@
 """
 """
 
-import sys
-import os
+import pytest
 
 
-class TestAskMode(unittest.TestCase):
+class TestAskMode:
     """Test the interactive confirmation mode functionality."""
 
     def test_set_ask_mode(self):
-        """Test that ask mode can be enabled and disabled."""
+        """Ask mode should be enabled and disabled correctly."""
         from unused_categories_bot import set_ask_mode, is_ask_mode
 
-        # Initially should be False (default)
         set_ask_mode(False)
-        self.assertFalse(is_ask_mode())
+        assert is_ask_mode() is False
 
-        # Enable ask mode
         set_ask_mode(True)
-        self.assertTrue(is_ask_mode())
+        assert is_ask_mode() is True
 
-        # Disable ask mode
         set_ask_mode(False)
-        self.assertFalse(is_ask_mode())
+        assert is_ask_mode() is False
 
     def test_confirm_edit_without_ask_mode(self):
-        """Test that confirm_edit returns True when ask mode is disabled."""
+        """confirm_edit should return True when ask mode is disabled."""
         from unused_categories_bot import confirm_edit, set_ask_mode
 
         set_ask_mode(False)
         result = confirm_edit("Test Page", "old text", "new text")
-        self.assertTrue(result)
 
-    def test_confirm_edit_with_yes_response(self):
-        """Test that confirm_edit returns True when user enters 'y'."""
-        from unused_categories_bot import confirm_edit, set_ask_mode
-        from unittest.mock import patch
+        assert result is True
+
+    def test_confirm_edit_with_yes_response(self, monkeypatch):
+        """confirm_edit should return True when user enters 'y'."""
         import unused_categories_bot
+        from unused_categories_bot import confirm_edit, set_ask_mode
 
-        # Reset auto_approve_all state
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
 
-        with patch('builtins.input', return_value='y'):
-            result = confirm_edit("Test Page", "old text", "new text")
-            self.assertTrue(result)
+        monkeypatch.setattr("builtins.input", lambda _: "y")
+
+        result = confirm_edit("Test Page", "old text", "new text")
+        assert result is True
 
         set_ask_mode(False)
 
-    def test_confirm_edit_with_empty_response(self):
-        """Test that confirm_edit returns True when user enters empty string."""
-        from unused_categories_bot import confirm_edit, set_ask_mode
-        from unittest.mock import patch
+    def test_confirm_edit_with_empty_response(self, monkeypatch):
+        """confirm_edit should return True when user enters empty string."""
         import unused_categories_bot
+        from unused_categories_bot import confirm_edit, set_ask_mode
 
-        # Reset auto_approve_all state
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
 
-        with patch('builtins.input', return_value=''):
-            result = confirm_edit("Test Page", "old text", "new text")
-            self.assertTrue(result)
+        monkeypatch.setattr("builtins.input", lambda _: "")
+
+        result = confirm_edit("Test Page", "old text", "new text")
+        assert result is True
 
         set_ask_mode(False)
 
-    def test_confirm_edit_with_no_response(self):
-        """Test that confirm_edit returns False when user enters 'n'."""
-        from unused_categories_bot import confirm_edit, set_ask_mode
-        from unittest.mock import patch
+    def test_confirm_edit_with_no_response(self, monkeypatch):
+        """confirm_edit should return False when user enters 'n'."""
         import unused_categories_bot
+        from unused_categories_bot import confirm_edit, set_ask_mode
 
-        # Reset auto_approve_all state
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
 
-        with patch('builtins.input', return_value='n'):
-            result = confirm_edit("Test Page", "old text", "new text")
-            self.assertFalse(result)
+        monkeypatch.setattr("builtins.input", lambda _: "n")
+
+        result = confirm_edit("Test Page", "old text", "new text")
+        assert result is False
 
         set_ask_mode(False)
 
-    def test_confirm_edit_with_all_response(self):
-        """Test that confirm_edit sets auto_approve_all when user enters 'a'."""
-        from unused_categories_bot import confirm_edit, set_ask_mode
-        from unittest.mock import patch
+    def test_confirm_edit_with_all_response(self, monkeypatch):
+        """Entering 'a' should enable auto_approve_all."""
         import unused_categories_bot
+        from unused_categories_bot import confirm_edit, set_ask_mode
 
-        # Reset auto_approve_all state
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
 
-        with patch('builtins.input', return_value='a'):
-            result = confirm_edit("Test Page", "old text", "new text")
-            self.assertTrue(result)
-            self.assertTrue(unused_categories_bot._auto_approve_all)
+        monkeypatch.setattr("builtins.input", lambda _: "a")
 
-        # Reset for other tests
+        result = confirm_edit("Test Page", "old text", "new text")
+
+        assert result is True
+        assert unused_categories_bot._auto_approve_all is True
+
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(False)
 
-    def test_confirm_edit_auto_approve_skips_prompt(self):
-        """Test that confirm_edit skips prompt when auto_approve_all is True."""
-        from unused_categories_bot import confirm_edit, set_ask_mode
-        from unittest.mock import patch
+    def test_confirm_edit_auto_approve_skips_prompt(self, monkeypatch):
+        """input() should not be called when auto_approve_all is True."""
         import unused_categories_bot
+        from unused_categories_bot import confirm_edit, set_ask_mode
 
-        # Set auto_approve_all to True
         unused_categories_bot._auto_approve_all = True
         set_ask_mode(True)
 
-        # input should not be called when auto_approve_all is True
-        with patch('builtins.input') as mock_input:
-            result = confirm_edit("Test Page", "old text", "new text")
-            self.assertTrue(result)
-            mock_input.assert_not_called()
+        def fail_if_called(*args, **kwargs):
+            raise AssertionError("input() should not be called")
 
-        # Reset for other tests
+        monkeypatch.setattr("builtins.input", fail_if_called)
+
+        result = confirm_edit("Test Page", "old text", "new text")
+        assert result is True
+
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(False)
