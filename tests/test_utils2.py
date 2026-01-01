@@ -59,56 +59,66 @@ class TestCategoryFiltering(unittest.TestCase):
         self.assertFalse(is_en_stub_or_maintenance_category("Category:Science"))
 
 
-class TestCategoryDetection(unittest.TestCase):
+class TestCategoryDetection:
     """Test the category detection functionality."""
 
     def test_category_found_arabic(self):
-        """Test that Arabic category syntax is detected."""
+        """Arabic category syntax should be detected."""
         text = "Some article text\n[[تصنيف:تاريخ]]\n"
-        self.assertTrue(category_in_text(text, "تاريخ"))
+        assert category_in_text(text, "تاريخ") is True
 
     def test_category_found_with_spaces(self):
-        """Test that category with spaces is detected."""
+        """Category with surrounding spaces should be detected."""
         text = "Some article text\n[[تصنيف: علم الفلك ]]\n"
-        self.assertTrue(category_in_text(text, "علم الفلك"))
+        assert category_in_text(text, "علم الفلك") is True
 
     def test_category_not_found(self):
-        """Test that missing category is not detected."""
+        """Missing category should not be detected."""
         text = "Some article text\n[[تصنيف:تاريخ]]\n"
-        self.assertFalse(category_in_text(text, "علوم"))
+        assert category_in_text(text, "علوم") is False
 
     def test_category_found_english_syntax(self):
-        """Test that English category syntax is detected."""
+        """English category syntax should be detected."""
         text = "Some article text\n[[Category:History]]\n"
-        self.assertTrue(category_in_text(text, "History"))
+        assert category_in_text(text, "History") is True
 
     def test_category_with_sort_key(self):
-        """Test that category with sort key is detected."""
+        """Category with sort key should be detected."""
         text = "Some article text\n[[تصنيف:تاريخ|مفتاح]]\n"
-        self.assertTrue(category_in_text(text, "تاريخ"))
+        assert category_in_text(text, "تاريخ") is True
 
     def test_category_case_insensitive(self):
-        """Test that category detection is case insensitive."""
+        """Category detection should be case insensitive."""
         text = "Some article text\n[[category:History]]\n"
-        self.assertTrue(category_in_text(text, "History"))
+        assert category_in_text(text, "History") is True
 
     def test_multiple_categories(self):
-        """Test detection with multiple categories present."""
-        text = """Some article text\n[[تصنيف:تاريخ]]\n[[تصنيف:علوم]]\n[[تصنيف:جغرافيا]]\n"""
-        self.assertTrue(category_in_text(text, "علوم"))
-        self.assertTrue(category_in_text(text, "تاريخ"))
-        self.assertTrue(category_in_text(text, "جغرافيا"))
-        self.assertFalse(category_in_text(text, "رياضيات"))
+        """Multiple categories should all be detected correctly."""
+        text = (
+            "Some article text\n"
+            "[[تصنيف:تاريخ]]\n"
+            "[[تصنيف:علوم]]\n"
+            "[[تصنيف:جغرافيا]]\n"
+        )
+
+        assert category_in_text(text, "علوم") is True
+        assert category_in_text(text, "تاريخ") is True
+        assert category_in_text(text, "جغرافيا") is True
+        assert category_in_text(text, "رياضيات") is False
 
     def test_empty_text(self):
-        """Test with empty article text."""
-        text = ""
-        self.assertFalse(category_in_text(text, "تاريخ"))
+        """Empty text should not match any category."""
+        assert category_in_text("", "تاريخ") is False
 
     def test_category_in_middle_of_text(self):
-        """Test category detection when not at the end."""
-        text = """Article beginning\n[[تصنيف:تاريخ]]\nMore article text here\n"""
-        self.assertTrue(category_in_text(text, "تاريخ"))
+        """Category should be detected even if not at the end."""
+        text = (
+            "Article beginning\n"
+            "[[تصنيف:تاريخ]]\n"
+            "More article text here\n"
+        )
+
+        assert category_in_text(text, "تاريخ") is True
 
 
 class TestCategoryFilteringMock:
