@@ -6,6 +6,10 @@ from .text_utils import (
     is_ar_stub_or_maintenance_category,
     is_en_stub_or_maintenance_category,
 )
+from .log import (
+    LoggerWrap,
+    logger,
+)
 from .diff import (
     show_diff,
     showDiff,
@@ -18,4 +22,6 @@ __all__ = [
     "is_en_stub_or_maintenance_category",
     "show_diff",
     "showDiff",
+    "LoggerWrap",
+    "logger",
 ]

@@ -479,6 +479,7 @@ def show_diff(old_text, new_text):
 
 
 __all__ = [
+    "make_str",
     "showDiff",
     "show_diff",
 ]

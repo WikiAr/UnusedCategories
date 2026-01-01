@@ -12,27 +12,18 @@ This script processes unused categories on Arabic Wikipedia by:
 
 import os
 import sys
-import logging
 import mwclient
 from dotenv import load_dotenv
 from utils import diff
 
 from utils import (
+    logger,
     en_page_has_category_in_text,
     category_in_text,
     is_ar_stub_or_maintenance_category,
     is_en_stub_or_maintenance_category,
 )
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%H:%M:%S',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-
-logger = logging.getLogger(__name__)
-
+logger.set_level("INFO")
 load_dotenv()
 
 # Global state for interactive confirmation mode
@@ -95,8 +86,8 @@ def confirm_edit(page_title, old_text, new_text):
     logger.info(f"{'='*60}")
 
     # Prompt for confirmation
-    logger.info("Options: [y]es / [n]o / [a]ll (approve all remaining)")
-    response = input(f"Target:{page_title}, Confirm edit? [Y/n/a]: ").strip().lower()
+    logger.info(f"<<green>> Target: {page_title}, Options: [y]es / [n]o / [a]ll (approve all remaining)")
+    response = input("Confirm edit? [Y/n/a]: ").strip().lower()
 
     # Empty response or "y"/"yes" means proceed with this edit
     if response in ('', 'y', 'yes'):
@@ -109,7 +100,7 @@ def confirm_edit(page_title, old_text, new_text):
         return True
 
     # Any other response means skip
-    logger.info("Edit skipped.")
+    logger.error_red("Edit skipped.")
     return False
 
 
@@ -393,7 +384,7 @@ def process_category(ar_site, en_site, category_name):
         category_name_without_prefix = category_name
 
     logger.info(f"\n{'='*60}")
-    logger.info(f"Processing: {category_name}")
+    logger.info(f"<<yellow>> Processing: {category_name}")
     logger.info(f"{'='*60}")
 
     # Get the page object
@@ -426,14 +417,15 @@ def process_category(ar_site, en_site, category_name):
         logger.info(f"No members found in English category {en_category_title}")
         return
 
-    logger.info(f"Found {len(en_members)} members in English category")
+    logger.info(f"Found {len(en_members)} members in English category: {en_category_title}")
 
     # Process each member
     added_count = 0
-    for en_member in en_members:
+    for n, en_member in enumerate(en_members, start=1):
+        logger.info(f"<<purple>> Processing member {n}/{len(en_members)}: {en_member.name}")
         # Check if the English page contains the category directly in its text
         # (not added via a template)
-        dir_en_member = [
+        _dir_en_member = [
             'append', 'args', 'backlinks', 'base_name', 'base_title', 'can', 'categories', 'contentmodel', 'count',
             'delete', 'edit', 'edit_time', 'embeddedin', 'exists', 'extlinks', 'generate_kwargs', 'generator', 'get_list',
             'get_prefix', 'get_token', 'handle_edit_error', 'images', 'iwlinks', 'langlinks', 'last', 'last_rev_time',
@@ -444,19 +436,21 @@ def process_category(ar_site, en_site, category_name):
         ]
         en_page_title = en_member.name
         namespace = en_member.namespace
-        if namespace != 14:
-            text = en_member.text()
-            if not en_page_has_category_in_text(text, en_category_title, en_page_title):
-                logger.info(f"  Skipping {en_page_title}: category not in text (possibly added via template)")
-                continue
+        text = en_member.text()
+        category_in_text = en_page_has_category_in_text(text, en_category_title, en_page_title)
+
+        if not category_in_text and namespace != 14:
+            logger.info(f"  Skipping {en_page_title}: category not in text (possibly added via template)")
+            continue
 
         # Get Arabic Wikipedia link
         ar_article_title = get_interwiki_link(en_member, 'ar')
 
         if not ar_article_title:
+            logger.info(f"No Arabic Wikipedia link found for {en_page_title}")
             continue
 
-        logger.info(f"  Checking Arabic article: {ar_article_title}/{en_page_title}")
+        logger.info(f"Checking Arabic article: {ar_article_title}/{en_page_title}")
 
         # Get Arabic article page
         ar_article = ar_site.pages[ar_article_title]
@@ -468,7 +462,7 @@ def process_category(ar_site, en_site, category_name):
         else:
             logger.info(f"    - Category already exists in {ar_article_title}")
 
-    logger.info(f"\nTotal categories added: {added_count}")
+    logger.info(f"Total categories added: {added_count}")
 
 
 def main():
