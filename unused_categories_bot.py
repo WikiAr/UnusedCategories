@@ -14,8 +14,8 @@ import os
 import sys
 import logging
 import mwclient
-import difflib
 from dotenv import load_dotenv
+from utils import diff
 
 from utils import (
     en_page_has_category_in_text,
@@ -23,9 +23,15 @@ from utils import (
     is_ar_stub_or_maintenance_category,
     is_en_stub_or_maintenance_category,
 )
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
 logger = logging.getLogger(__name__)
-logger.setLevel("DEBUG")
 
 load_dotenv()
 
@@ -85,17 +91,7 @@ def confirm_edit(page_title, old_text, new_text):
     logger.info(f"{'='*60}")
 
     # Show diff
-    old_lines = old_text.splitlines(keepends=True)
-    new_lines = new_text.splitlines(keepends=True)
-    diff = difflib.unified_diff(old_lines, new_lines, fromfile='before', tofile='after', lineterm='')
-    diff_text = ''.join(diff)
-
-    if diff_text:
-        logger.info("Diff:")
-        logger.info(diff_text)
-    else:
-        logger.info("No changes detected.")
-
+    diff.showDiff(old_text, new_text)
     logger.info(f"{'='*60}")
 
     # Prompt for confirmation
@@ -492,7 +488,7 @@ def main():
     for arg in sys.argv:
         arg, _, value = arg.partition(":")
         if arg == "-cat":
-            unused_categories.append(value)
+            unused_categories.append(value.replace("_", " "))
 
     if not unused_categories:
         # Fetch unused categories from Arabic Wikipedia
