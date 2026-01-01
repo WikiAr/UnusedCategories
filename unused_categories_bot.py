@@ -433,10 +433,18 @@ def process_category(ar_site, en_site, category_name):
     for en_member in en_members:
         # Check if the English page contains the category directly in its text
         # (not added via a template)
+        dir_en_member = [
+            'append', 'args', 'backlinks', 'base_name', 'base_title', 'can', 'categories', 'contentmodel', 'count',
+            'delete', 'edit', 'edit_time', 'embeddedin', 'exists', 'extlinks', 'generate_kwargs', 'generator', 'get_list',
+            'get_prefix', 'get_token', 'handle_edit_error', 'images', 'iwlinks', 'langlinks', 'last', 'last_rev_time',
+            'length', 'links', 'list_name', 'load_chunk', 'max_items', 'members', 'move', 'name', 'namespace',
+            'normalize_title', 'page_class', 'page_title', 'pageid', 'pagelanguage', 'prefix', 'prepend', 'protection',
+            'purge', 'redirect', 'redirects_to', 'resolve_redirect', 'restrictiontypes', 'result_member', 'return_values',
+            'revision', 'revisions', 'save', 'set_iter', 'site', 'strip_namespace', 'templates', 'text', 'touch', 'touched'
+        ]
         en_page_title = en_member.name
-        ns = en_member.ns
-
-        if ns != 14:
+        namespace = en_member.namespace
+        if namespace != 14:
             text = en_member.text()
             if not en_page_has_category_in_text(text, en_category_title, en_page_title):
                 logger.info(f"  Skipping {en_page_title}: category not in text (possibly added via template)")
