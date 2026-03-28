@@ -135,7 +135,7 @@ class CredentialError(ConfigurationError):
 
     Example:
         >>> raise CredentialError(
-        ...     "WIKI_BOT_USERNAME environment variable not set"
+        ...     "WIKIPEDIA_BOT_USERNAME environment variable not set"
         ... )
 
     """

@@ -28,7 +28,7 @@ The bot works by:
 
 - Use docstrings for all functions with Args, Returns, and Raises sections
 - Handle exceptions appropriately, especially for API errors (`mwclient.errors.APIError`, `mwclient.errors.EditError`)
-- Use environment variables for credentials (`WIKI_BOT_USERNAME`, `WIKI_BOT_PASSWORD`)
+- Use environment variables for credentials (`WIKIPEDIA_BOT_USERNAME`, `WIKIPEDIA_BOT_PASSWORD`)
 - Arabic category syntax uses `[[تصنيف:CategoryName]]`
 - English category syntax uses `[[Category:CategoryName]]`
 
@@ -44,8 +44,8 @@ Tests are written using Python's pytest framework and do not require a Wikipedia
 ## Environment Variables
 
 The bot requires the following environment variables:
-- `WIKI_BOT_USERNAME`: Wikipedia bot username
-- `WIKI_BOT_PASSWORD`: Wikipedia bot password
+- `WIKIPEDIA_BOT_USERNAME`: Wikipedia bot username
+- `WIKIPEDIA_BOT_PASSWORD`: Wikipedia bot password
 
 ## Important Notes
 

@@ -15,8 +15,8 @@ Usage:
     python unused_categories_bot.py -cat:CategoryName  # Process specific category
 
 Environment Variables:
-    WIKI_BOT_USERNAME: Wikipedia bot account username
-    WIKI_BOT_PASSWORD: Wikipedia bot account password
+    WIKIPEDIA_BOT_USERNAME: Wikipedia bot account username
+    WIKIPEDIA_BOT_PASSWORD: Wikipedia bot account password
 
 Example:
     Run with interactive confirmation::
@@ -374,8 +374,8 @@ def load_credentials() -> tuple[str, str]:
     Load Wikipedia credentials from environment variables.
 
     The credentials should be set in the environment or a .env file:
-    - WIKI_BOT_USERNAME: The bot account username
-    - WIKI_BOT_PASSWORD: The bot account password
+    - WIKIPEDIA_BOT_USERNAME: The bot account username
+    - WIKIPEDIA_BOT_PASSWORD: The bot account password
 
     Returns:
         A tuple of (username, password).
@@ -393,8 +393,8 @@ def load_credentials() -> tuple[str, str]:
         return creds.username, creds.password
     except CredentialError:
         raise CredentialError(
-            "Credentials not found. Please set WIKI_BOT_USERNAME and "
-            "WIKI_BOT_PASSWORD environment variables."
+            "Credentials not found. Please set WIKIPEDIA_BOT_USERNAME and "
+            "WIKIPEDIA_BOT_PASSWORD environment variables."
         )
 
 

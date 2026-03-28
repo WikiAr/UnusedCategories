@@ -14,8 +14,8 @@ class TestCredentialLoading:
         from unused_categories_bot import load_credentials
         from utils.exceptions import CredentialError
 
-        monkeypatch.delenv("WIKI_BOT_USERNAME", raising=False)
-        monkeypatch.delenv("WIKI_BOT_PASSWORD", raising=False)
+        monkeypatch.delenv("WIKIPEDIA_BOT_USERNAME", raising=False)
+        monkeypatch.delenv("WIKIPEDIA_BOT_PASSWORD", raising=False)
 
         # Accept either ValueError (old) or CredentialError (new)
         with pytest.raises((ValueError, CredentialError)):
@@ -25,8 +25,8 @@ class TestCredentialLoading:
         """Test that credentials are loaded correctly."""
         from unused_categories_bot import load_credentials
 
-        monkeypatch.setenv("WIKI_BOT_USERNAME", "test_user")
-        monkeypatch.setenv("WIKI_BOT_PASSWORD", "test_pass")
+        monkeypatch.setenv("WIKIPEDIA_BOT_USERNAME", "test_user")
+        monkeypatch.setenv("WIKIPEDIA_BOT_PASSWORD", "test_pass")
 
         username, password = load_credentials()
 

@@ -80,8 +80,8 @@ class TestCredentials:
         assert "***" in repr_str
 
     @patch.dict(os.environ, {
-        "WIKI_BOT_USERNAME": "env_user",
-        "WIKI_BOT_PASSWORD": "env_pass"
+        "WIKIPEDIA_BOT_USERNAME": "env_user",
+        "WIKIPEDIA_BOT_PASSWORD": "env_pass"
     })
     def test_credentials_from_env(self) -> None:
         """Test loading credentials from environment variables."""

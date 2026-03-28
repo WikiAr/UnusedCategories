@@ -61,8 +61,8 @@ DEFAULT_RATE_LIMIT: float = 10.0  # calls per second
 DEFAULT_MAX_EDITS_PER_RUN: int = 0  # 0 = unlimited
 
 # Environment variable names
-ENV_BOT_USERNAME: str = "WIKI_BOT_USERNAME"
-ENV_BOT_PASSWORD: str = "WIKI_BOT_PASSWORD"
+ENV_BOT_USERNAME: str = "WIKIPEDIA_BOT_USERNAME"
+ENV_BOT_PASSWORD: str = "WIKIPEDIA_BOT_PASSWORD"
 ENV_CATEGORY_LIMIT: str = "WIKI_BOT_CATEGORY_LIMIT"
 ENV_RATE_LIMIT: str = "WIKI_BOT_RATE_LIMIT"
 ENV_ASK_MODE: str = "WIKI_BOT_ASK_MODE"
@@ -153,16 +153,16 @@ class Credentials:
         Load credentials from environment variables.
 
         Returns:
-            A Credentials instance populated from WIKI_BOT_USERNAME
-            and WIKI_BOT_PASSWORD environment variables.
+            A Credentials instance populated from WIKIPEDIA_BOT_USERNAME
+            and WIKIPEDIA_BOT_PASSWORD environment variables.
 
         Raises:
             CredentialError: If either environment variable is not set.
 
         Example:
             >>> # Set environment variables first
-            >>> # os.environ["WIKI_BOT_USERNAME"] = "MyBot"
-            >>> # os.environ["WIKI_BOT_PASSWORD"] = "secret"
+            >>> # os.environ["WIKIPEDIA_BOT_USERNAME"] = "MyBot"
+            >>> # os.environ["WIKIPEDIA_BOT_PASSWORD"] = "secret"
             >>> creds = Credentials.from_env()
 
         """
