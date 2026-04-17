@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 from typing import NoReturn
+
 import pytest
 
 
@@ -11,7 +11,7 @@ class TestAskMode:
 
     def test_set_ask_mode(self) -> None:
         """Ask mode should be enabled and disabled correctly."""
-        from src.unused_categories_bot import set_ask_mode, is_ask_mode
+        from src.unused_categories_bot import is_ask_mode, set_ask_mode
 
         set_ask_mode(False)
         assert is_ask_mode() is False

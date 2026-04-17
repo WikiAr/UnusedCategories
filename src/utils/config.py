@@ -42,11 +42,12 @@ Notes:
 from __future__ import annotations
 
 import logging
-import pywikibot
 import os
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any, Callable, Optional
+
+import pywikibot
 
 from .exceptions import ConfigurationError, CredentialError
 
@@ -76,6 +77,7 @@ ENV_DRY_RUN: str = "WIKI_BOT_DRY_RUN"
 # Enums
 # =============================================================================
 
+
 class ApprovalDecision(Enum):
     """
     Possible decisions from edit approval workflow.
@@ -87,6 +89,7 @@ class ApprovalDecision(Enum):
         ABORT: Stop processing entirely.
 
     """
+
     APPROVE = auto()
     REJECT = auto()
     APPROVE_ALL = auto()
@@ -100,6 +103,7 @@ class LogLevel(Enum):
     Maps to Python logging module levels.
 
     """
+
     DEBUG = 10
     INFO = 20
     WARNING = 30
@@ -110,6 +114,7 @@ class LogLevel(Enum):
 # =============================================================================
 # Data Classes
 # =============================================================================
+
 
 @dataclass
 class Credentials:
@@ -140,15 +145,9 @@ class Credentials:
     def __post_init__(self) -> None:
         """Validate credentials after initialization."""
         if not self.username:
-            raise CredentialError(
-                "Username cannot be empty",
-                credential_type="username"
-            )
+            raise CredentialError("Username cannot be empty", credential_type="username")
         if not self.password:
-            raise CredentialError(
-                "Password cannot be empty",
-                credential_type="password"
-            )
+            raise CredentialError("Password cannot be empty", credential_type="password")
 
     @classmethod
     def from_env(cls) -> "Credentials":
@@ -173,15 +172,9 @@ class Credentials:
         password = os.environ.get(ENV_BOT_PASSWORD)
 
         if not username:
-            raise CredentialError(
-                f"{ENV_BOT_USERNAME} environment variable not set",
-                credential_type="username"
-            )
+            raise CredentialError(f"{ENV_BOT_USERNAME} environment variable not set", credential_type="username")
         if not password:
-            raise CredentialError(
-                f"{ENV_BOT_PASSWORD} environment variable not set",
-                credential_type="password"
-            )
+            raise CredentialError(f"{ENV_BOT_PASSWORD} environment variable not set", credential_type="password")
 
         return cls(username=username, password=password)
 
@@ -253,17 +246,11 @@ class BotConfig:
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         if self.category_limit < 0:
-            raise ConfigurationError(
-                f"category_limit must be non-negative, got {self.category_limit}"
-            )
+            raise ConfigurationError(f"category_limit must be non-negative, got {self.category_limit}")
         if self.rate_limit <= 0:
-            raise ConfigurationError(
-                f"rate_limit must be positive, got {self.rate_limit}"
-            )
+            raise ConfigurationError(f"rate_limit must be positive, got {self.rate_limit}")
         if self.max_edits_per_run < 0:
-            raise ConfigurationError(
-                f"max_edits_per_run must be non-negative, got {self.max_edits_per_run}"
-            )
+            raise ConfigurationError(f"max_edits_per_run must be non-negative, got {self.max_edits_per_run}")
 
     # -------------------------------------------------------------------------
     # Properties
@@ -310,10 +297,7 @@ class BotConfig:
     # Approval Workflow
     # -------------------------------------------------------------------------
 
-    def set_approval_handler(
-        self,
-        handler: Callable[[str, str, str], ApprovalDecision]
-    ) -> None:
+    def set_approval_handler(self, handler: Callable[[str, str, str], ApprovalDecision]) -> None:
         """
         Set a custom approval handler function.
 
@@ -425,10 +409,7 @@ class BotConfig:
         pywikibot.showDiff(old_text, new_text)
         logger.info(f"{'='*60}")
 
-        logger.info(
-            f"<<green>> Target: {page_title}, "
-            f"Options: [y]es / [n]o / [a]ll (approve all remaining)"
-        )
+        logger.info(f"<<green>> Target: {page_title}, " f"Options: [y]es / [n]o / [a]ll (approve all remaining)")
 
         try:
             response = input("Confirm edit? [Y/n/a]: ").strip().lower()
@@ -436,10 +417,10 @@ class BotConfig:
             logger.warning("Input interrupted, rejecting edit.")
             return ApprovalDecision.REJECT
 
-        if response in ('', 'y', 'yes'):
+        if response in ("", "y", "yes"):
             return ApprovalDecision.APPROVE
 
-        if response == 'a':
+        if response == "a":
             self.auto_approve_all = True
             logger.info("Auto-approving all remaining edits.")
             return ApprovalDecision.APPROVE
@@ -473,8 +454,8 @@ class BotConfig:
 
         """
         # Parse boolean settings
-        ask_mode = os.environ.get(ENV_ASK_MODE, '').lower() in ('true', '1', 'yes')
-        dry_run = os.environ.get(ENV_DRY_RUN, '').lower() in ('true', '1', 'yes')
+        ask_mode = os.environ.get(ENV_ASK_MODE, "").lower() in ("true", "1", "yes")
+        dry_run = os.environ.get(ENV_DRY_RUN, "").lower() in ("true", "1", "yes")
 
         # Parse numeric settings
         category_limit = DEFAULT_CATEGORY_LIMIT
@@ -482,18 +463,14 @@ class BotConfig:
             try:
                 category_limit = int(os.environ[ENV_CATEGORY_LIMIT])
             except ValueError:
-                logger.warning(
-                    f"Invalid {ENV_CATEGORY_LIMIT}: {os.environ[ENV_CATEGORY_LIMIT]}"
-                )
+                logger.warning(f"Invalid {ENV_CATEGORY_LIMIT}: {os.environ[ENV_CATEGORY_LIMIT]}")
 
         rate_limit = DEFAULT_RATE_LIMIT
         if ENV_RATE_LIMIT in os.environ:
             try:
                 rate_limit = float(os.environ[ENV_RATE_LIMIT])
             except ValueError:
-                logger.warning(
-                    f"Invalid {ENV_RATE_LIMIT}: {os.environ[ENV_RATE_LIMIT]}"
-                )
+                logger.warning(f"Invalid {ENV_RATE_LIMIT}: {os.environ[ENV_RATE_LIMIT]}")
 
         # Load credentials
         credentials = None
@@ -587,6 +564,7 @@ class BotConfig:
 # Module-level default config (for backwards compatibility)
 # =============================================================================
 
+
 def get_default_config() -> BotConfig:
     """
     Get the default configuration.
@@ -604,6 +582,7 @@ def get_default_config() -> BotConfig:
 # =============================================================================
 # Convenience function
 # =============================================================================
+
 
 def load_config_from_env() -> BotConfig:
     """

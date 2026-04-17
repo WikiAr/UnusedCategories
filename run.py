@@ -38,9 +38,11 @@ from __future__ import annotations
 
 import logging
 import sys
+
 from dotenv import load_dotenv
 
 from logging_config import setup_logging
+
 if setup_logging:
     setup_logging(
         "src",
@@ -73,6 +75,7 @@ def main() -> None:
 
     """
     from src import main_entry
+
     main_entry()
 
 

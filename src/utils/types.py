@@ -50,7 +50,6 @@ from typing import (
     runtime_checkable,
 )
 
-
 # =============================================================================
 # Type Aliases
 # =============================================================================
@@ -72,14 +71,15 @@ NamespaceId = int
 # Type Variables
 # =============================================================================
 
-T = TypeVar('T')
-T_co = TypeVar('T_co', covariant=True)
-T_contra = TypeVar('T_contra', contravariant=True)
+T = TypeVar("T")
+T_co = TypeVar("T_co", covariant=True)
+T_contra = TypeVar("T_contra", contravariant=True)
 
 
 # =============================================================================
 # API Response TypedDict Classes
 # =============================================================================
+
 
 class CategoryInfo(TypedDict, total=False):
     """
@@ -112,6 +112,7 @@ class CategoryInfo(TypedDict, total=False):
         https://www.mediawiki.org/wiki/API:Categoryinfo
 
     """
+
     size: int
     pages: int
     files: int
@@ -142,6 +143,7 @@ class QueryPageResult(TypedDict):
             }
 
     """
+
     title: str
     ns: int
     value: str
@@ -157,6 +159,7 @@ class LangLink(TypedDict):
         autonym: Native name of the language (optional).
 
     """
+
     lang: str
     title: str
 
@@ -176,6 +179,7 @@ class PageInfo(TypedDict, total=False):
         invalid: Present if title is invalid.
 
     """
+
     pageid: int
     title: str
     ns: int
@@ -196,6 +200,7 @@ class APIQueryResponse(TypedDict, total=False):
         continue_: Continue token for pagination.
 
     """
+
     pages: dict[str, PageInfo]
     querypage: dict[str, Any]
 
@@ -211,6 +216,7 @@ class APIResponse(TypedDict, total=False):
         continue_: Continue token for pagination.
 
     """
+
     query: APIQueryResponse
     error: dict[str, Any]
     warnings: dict[str, Any]
@@ -219,6 +225,7 @@ class APIResponse(TypedDict, total=False):
 # =============================================================================
 # Protocol Classes
 # =============================================================================
+
 
 @runtime_checkable
 class PageAccessor(Protocol):
@@ -471,6 +478,7 @@ class MediaWikiSite(Protocol):
 # Result Types
 # =============================================================================
 
+
 class EditResult(TypedDict):
     """
     Result of an edit operation.
@@ -484,6 +492,7 @@ class EditResult(TypedDict):
         message: Optional message about the result.
 
     """
+
     success: bool
     page_title: str
     old_revision: Optional[int]
@@ -506,6 +515,7 @@ class CategoryProcessingResult(TypedDict):
         skipped_reason: Reason the category was skipped (if applicable).
 
     """
+
     category: str
     success: bool
     edits_made: int
@@ -530,6 +540,7 @@ PageIdentifier = Union[str, MediaWikiPage]
 # =============================================================================
 # Helper Functions
 # =============================================================================
+
 
 def is_valid_page(obj: Any) -> bool:
     """
@@ -558,8 +569,8 @@ def is_valid_page(obj: Any) -> bool:
     if not isinstance(obj, MediaWikiPage):
         return False
 
-    required_attrs = ('name', 'namespace', 'site')
-    required_methods = ('text', 'save', 'redirects_to', 'langlinks')
+    required_attrs = ("name", "namespace", "site")
+    required_methods = ("text", "save", "redirects_to", "langlinks")
 
     for attr in required_attrs:
         if not hasattr(obj, attr):
@@ -586,13 +597,13 @@ def is_valid_site(obj: Any) -> bool:
     if not isinstance(obj, MediaWikiSite):
         return False
 
-    required_methods = ('get', 'api', 'login')
+    required_methods = ("get", "api", "login")
 
     for method in required_methods:
         if not callable(getattr(obj, method, None)):
             return False
 
-    if not hasattr(obj, 'pages'):
+    if not hasattr(obj, "pages"):
         return False
 
     return True

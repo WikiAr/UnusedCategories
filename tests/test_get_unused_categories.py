@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 import pytest
 
@@ -21,17 +20,19 @@ class TestGetUnusedCategories:
     def test_get_unused_categories_returns_results(self) -> None:
         from src.unused_categories_bot import get_unused_categories
 
-        site = FakeSite({
-            "query": {
-                "querypage": {
-                    "name": "Unusedcategories",
-                    "results": [
-                        {"title": "تصنيف:تاريخ", "ns": 14},
-                        {"title": "تصنيف:علوم", "ns": 14},
-                    ],
+        site = FakeSite(
+            {
+                "query": {
+                    "querypage": {
+                        "name": "Unusedcategories",
+                        "results": [
+                            {"title": "تصنيف:تاريخ", "ns": 14},
+                            {"title": "تصنيف:علوم", "ns": 14},
+                        ],
+                    }
                 }
             }
-        })
+        )
 
         categories = get_unused_categories(site, limit=10)
 
@@ -51,14 +52,16 @@ class TestGetUnusedCategories:
     def test_get_unused_categories_empty_results(self) -> None:
         from src.unused_categories_bot import get_unused_categories
 
-        site = FakeSite({
-            "query": {
-                "querypage": {
-                    "name": "Unusedcategories",
-                    "results": [],
+        site = FakeSite(
+            {
+                "query": {
+                    "querypage": {
+                        "name": "Unusedcategories",
+                        "results": [],
+                    }
                 }
             }
-        })
+        )
 
         categories = get_unused_categories(site, limit=10)
         assert categories == []

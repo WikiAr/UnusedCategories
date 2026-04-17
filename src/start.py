@@ -9,8 +9,8 @@ import logging
 import sys
 
 from .unused_categories_bot import (
-    set_ask_mode,
     is_credentials_loaded,
+    set_ask_mode,
     start_work,
 )
 
@@ -65,7 +65,7 @@ def main_entry() -> None:
     """
 
     # Check for "ask" argument to enable interactive confirmation mode
-    if 'ask' in sys.argv:
+    if "ask" in sys.argv:
         set_ask_mode(True)
         logger.info("Interactive confirmation mode enabled.")
 

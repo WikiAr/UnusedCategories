@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 
 class FakeSite:
@@ -25,15 +24,7 @@ class TestHiddenCategoryCheck:
     def test_hidden_category_detected(self) -> None:
         from src.unused_categories_bot import is_hidden_category
 
-        site = FakeSite({
-            "query": {
-                "pages": {
-                    "123": {
-                        "categoryinfo": {"hidden": True}
-                    }
-                }
-            }
-        })
+        site = FakeSite({"query": {"pages": {"123": {"categoryinfo": {"hidden": True}}}}})
 
         page = FakePage("Category:Hidden test", site)
 
@@ -42,15 +33,7 @@ class TestHiddenCategoryCheck:
     def test_visible_category_not_flagged(self) -> None:
         from src.unused_categories_bot import is_hidden_category
 
-        site = FakeSite({
-            "query": {
-                "pages": {
-                    "123": {
-                        "categoryinfo": {"hidden": False}
-                    }
-                }
-            }
-        })
+        site = FakeSite({"query": {"pages": {"123": {"categoryinfo": {"hidden": False}}}}})
 
         page = FakePage("Category:Visible test", site)
 
@@ -59,13 +42,7 @@ class TestHiddenCategoryCheck:
     def test_category_without_categoryinfo(self) -> None:
         from src.unused_categories_bot import is_hidden_category
 
-        site = FakeSite({
-            "query": {
-                "pages": {
-                    "123": {}
-                }
-            }
-        })
+        site = FakeSite({"query": {"pages": {"123": {}}}})
 
         page = FakePage("Category:Test", site)
 

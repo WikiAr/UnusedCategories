@@ -2,9 +2,7 @@
 
 import pytest
 
-from src.utils import (
-    has_ar_category_redirect_template
-)
+from src.utils import has_ar_category_redirect_template
 
 
 class TestHasArCategoryRedirectTemplate:
@@ -27,9 +25,11 @@ class TestHasArCategoryRedirectTemplate:
 
     def test_multiple_templates(self) -> None:
         """Test when multiple templates are present."""
-        text = ("هذا نص المقالة\n"
-                "{{تحويل تصنيف|تصنيف قديم1|تصنيف جديد1}}\n"
-                "نص إضافي\n"
-                "{{تحويل تصنيف|تصنيف قديم2|تصنيف جديد2}}\n"
-                "المزيد من النص")
+        text = (
+            "هذا نص المقالة\n"
+            "{{تحويل تصنيف|تصنيف قديم1|تصنيف جديد1}}\n"
+            "نص إضافي\n"
+            "{{تحويل تصنيف|تصنيف قديم2|تصنيف جديد2}}\n"
+            "المزيد من النص"
+        )
         assert has_ar_category_redirect_template(text) is True

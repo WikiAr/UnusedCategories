@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 
 class RedirectPage:
@@ -27,6 +26,7 @@ class TestRedirectPageCheck:
 
     def test_redirect_page_detected(self) -> None:
         from src.unused_categories_bot import is_redirect_page
+
         page = RedirectPage()
         assert is_redirect_page(page) is True
 
@@ -37,12 +37,11 @@ class TestRedirectPageCheck:
         assert is_redirect_page(page) is False
 
     def test_redirect_check_handles_api_error(self) -> None:
-        from src.unused_categories_bot import is_redirect_page
         import mwclient.errors
 
-        page = ErrorRedirectPage(
-            mwclient.errors.APIError("error", "info", {})
-        )
+        from src.unused_categories_bot import is_redirect_page
+
+        page = ErrorRedirectPage(mwclient.errors.APIError("error", "info", {}))
 
         assert is_redirect_page(page) is False
 

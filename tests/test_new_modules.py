@@ -11,35 +11,36 @@ This test module covers:
 """
 
 import os
-import pytest
 import time
-from unittest.mock import patch, MagicMock
 from typing import Any
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.utils.config import (
-    BotConfig,
-    Credentials,
-    ApprovalDecision,
-    LogLevel,
     DEFAULT_CATEGORY_LIMIT,
     DEFAULT_EDIT_SUMMARY,
     DEFAULT_RATE_LIMIT,
+    ApprovalDecision,
+    BotConfig,
+    Credentials,
+    LogLevel,
 )
 from src.utils.exceptions import (
+    APIError,
     BotError,
+    CategoryProcessingError,
     ConfigurationError,
     CredentialError,
-    APIError,
-    RateLimitError,
-    CategoryProcessingError,
-    PageProcessingError,
     EditError,
+    PageProcessingError,
+    RateLimitError,
     ValidationError,
 )
 from src.utils.rate_limiter import (
+    AdaptiveRateLimiter,
     SimpleRateLimiter,
     TokenBucketRateLimiter,
-    AdaptiveRateLimiter,
     create_rate_limiter,
 )
 from src.utils.types import (
@@ -47,10 +48,10 @@ from src.utils.types import (
     is_valid_site,
 )
 
-
 # =============================================================================
 # Configuration Tests
 # =============================================================================
+
 
 class TestCredentials:
     """Tests for the Credentials class."""
@@ -79,10 +80,7 @@ class TestCredentials:
         assert "secret123" not in repr_str
         assert "***" in repr_str
 
-    @patch.dict(os.environ, {
-        "WIKIPEDIA_BOT_USERNAME": "env_user",
-        "WIKIPEDIA_BOT_PASSWORD": "env_pass"
-    })
+    @patch.dict(os.environ, {"WIKIPEDIA_BOT_USERNAME": "env_user", "WIKIPEDIA_BOT_PASSWORD": "env_pass"})
     def test_credentials_from_env(self) -> None:
         """Test loading credentials from environment variables."""
         creds = Credentials.from_env()
@@ -233,6 +231,7 @@ class TestLogLevel:
 # Exception Tests
 # =============================================================================
 
+
 class TestExceptions:
     """Tests for the exception hierarchy."""
 
@@ -257,12 +256,7 @@ class TestExceptions:
 
     def test_api_error_with_details(self) -> None:
         """Test APIError with operation details."""
-        e = APIError(
-            "Failed",
-            operation="query",
-            api_code="missingtitle",
-            api_info="Title not found"
-        )
+        e = APIError("Failed", operation="query", api_code="missingtitle", api_info="Title not found")
         assert "operation=query" in str(e)
         assert "code=missingtitle" in str(e)
         assert "info=Title not found" in str(e)
@@ -281,11 +275,7 @@ class TestExceptions:
 
     def test_page_processing_error(self) -> None:
         """Test PageProcessingError includes page title."""
-        e = PageProcessingError(
-            "Edit failed",
-            page_title="TestPage",
-            category="TestCategory"
-        )
+        e = PageProcessingError("Edit failed", page_title="TestPage", category="TestCategory")
         assert e.page_title == "TestPage"
         assert e.category == "TestCategory"
         assert "TestPage" in str(e)
@@ -293,21 +283,13 @@ class TestExceptions:
 
     def test_edit_error(self) -> None:
         """Test EditError with edit summary."""
-        e = EditError(
-            "Protected page",
-            page_title="Main Page",
-            edit_summary="Bot edit"
-        )
+        e = EditError("Protected page", page_title="Main Page", edit_summary="Bot edit")
         assert e.page_title == "Main Page"
         assert e.edit_summary == "Bot edit"
 
     def test_validation_error(self) -> None:
         """Test ValidationError with field info."""
-        e = ValidationError(
-            "Invalid value",
-            field="category_name",
-            value=""
-        )
+        e = ValidationError("Invalid value", field="category_name", value="")
         assert e.field == "category_name"
         assert e.value == ""
 
@@ -326,6 +308,7 @@ class TestExceptions:
 # =============================================================================
 # Rate Limiter Tests
 # =============================================================================
+
 
 class TestSimpleRateLimiter:
     """Tests for SimpleRateLimiter."""
@@ -451,11 +434,7 @@ class TestAdaptiveRateLimiter:
 
     def test_success_increases_rate(self) -> None:
         """Test that consecutive successes increase rate."""
-        limiter = AdaptiveRateLimiter(
-            initial_rate=5.0,
-            min_rate=1.0,
-            max_rate=20.0
-        )
+        limiter = AdaptiveRateLimiter(initial_rate=5.0, min_rate=1.0, max_rate=20.0)
 
         # Simulate 10 consecutive successes
         for _ in range(10):
@@ -465,11 +444,7 @@ class TestAdaptiveRateLimiter:
 
     def test_rate_limit_decreases_rate(self) -> None:
         """Test that rate limiting decreases rate."""
-        limiter = AdaptiveRateLimiter(
-            initial_rate=10.0,
-            min_rate=1.0,
-            max_rate=20.0
-        )
+        limiter = AdaptiveRateLimiter(initial_rate=10.0, min_rate=1.0, max_rate=20.0)
 
         limiter.on_rate_limited()
 
@@ -477,11 +452,7 @@ class TestAdaptiveRateLimiter:
 
     def test_rate_never_below_minimum(self) -> None:
         """Test that rate never goes below minimum."""
-        limiter = AdaptiveRateLimiter(
-            initial_rate=5.0,
-            min_rate=2.0,
-            max_rate=20.0
-        )
+        limiter = AdaptiveRateLimiter(initial_rate=5.0, min_rate=2.0, max_rate=20.0)
 
         # Multiple rate limit events
         for _ in range(10):
@@ -491,11 +462,7 @@ class TestAdaptiveRateLimiter:
 
     def test_rate_never_above_maximum(self) -> None:
         """Test that rate never exceeds maximum."""
-        limiter = AdaptiveRateLimiter(
-            initial_rate=5.0,
-            min_rate=1.0,
-            max_rate=10.0
-        )
+        limiter = AdaptiveRateLimiter(initial_rate=5.0, min_rate=1.0, max_rate=10.0)
 
         # Many successes
         for _ in range(100):
@@ -532,11 +499,13 @@ class TestCreateRateLimiter:
 # Type Tests
 # =============================================================================
 
+
 class TestTypes:
     """Tests for type definitions and helpers."""
 
     def test_is_valid_page_with_valid_object(self) -> None:
         """Test is_valid_page with a compliant object."""
+
         class ValidPage:
             name = "Test"
             namespace = 0
@@ -559,6 +528,7 @@ class TestTypes:
 
     def test_is_valid_page_with_invalid_object(self) -> None:
         """Test is_valid_page with a non-compliant object."""
+
         class InvalidPage:
             pass
 
@@ -567,6 +537,7 @@ class TestTypes:
 
     def test_is_valid_site_with_valid_object(self) -> None:
         """Test is_valid_site with a compliant object."""
+
         class ValidSite:
             def get(self, action: str, **kwargs) -> dict:
                 return {}
