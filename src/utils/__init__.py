@@ -9,22 +9,6 @@ from .text_utils import (
     has_ar_category_redirect_template,
 )
 
-# Logging utilities
-from .log import (
-    LoggerWrap,
-    logger,
-)
-
-# Diff utilities
-from .diff import (
-    show_diff,
-    showDiff,
-    make_str,
-    get_color_table,
-    Hunk,
-    PatchManager,
-)
-
 # Configuration
 from .config import (
     BotConfig,
@@ -93,10 +77,7 @@ __all__ = [
     "is_ar_stub_or_maintenance_category",
     "is_en_stub_or_maintenance_category",
     "has_ar_category_redirect_template",
-    "show_diff",
-    "showDiff",
-    "LoggerWrap",
-    "logger",
+    "has_ar_category_redirect_template",
     # Configuration
     "BotConfig",
     "Credentials",

@@ -16,7 +16,7 @@ import time
 from unittest.mock import patch, MagicMock
 from typing import Any
 
-from utils.config import (
+from src.utils.config import (
     BotConfig,
     Credentials,
     ApprovalDecision,
@@ -25,7 +25,7 @@ from utils.config import (
     DEFAULT_EDIT_SUMMARY,
     DEFAULT_RATE_LIMIT,
 )
-from utils.exceptions import (
+from src.utils.exceptions import (
     BotError,
     ConfigurationError,
     CredentialError,
@@ -36,13 +36,13 @@ from utils.exceptions import (
     EditError,
     ValidationError,
 )
-from utils.rate_limiter import (
+from src.utils.rate_limiter import (
     SimpleRateLimiter,
     TokenBucketRateLimiter,
     AdaptiveRateLimiter,
     create_rate_limiter,
 )
-from utils.types import (
+from src.utils.types import (
     is_valid_page,
     is_valid_site,
 )

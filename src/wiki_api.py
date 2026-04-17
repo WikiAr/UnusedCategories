@@ -30,11 +30,11 @@ from typing import TYPE_CHECKING, Optional
 import mwclient
 import mwclient.errors
 
-from utils import logger
+from src.utils import logger
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from utils.types import (
+    from src.utils.types import (
         CategoryTitle,
         LanguageCode,
         PageTitle,

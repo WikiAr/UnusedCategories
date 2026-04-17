@@ -41,18 +41,21 @@ Notes:
 
 from __future__ import annotations
 
+import logging
+import pywikibot
 import os
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any, Callable, Optional
 
 from .exceptions import ConfigurationError, CredentialError
-from .log import logger
 
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Constants
 # =============================================================================
+
 
 # Default configuration values
 DEFAULT_CATEGORY_LIMIT: int = 1000
@@ -413,14 +416,13 @@ class BotConfig:
             The user's decision.
 
         """
-        from .diff import showDiff
 
         logger.info(f"\n{'='*60}")
         logger.info(f"Target: {page_title}")
         logger.info(f"{'='*60}")
 
         # Show the diff
-        showDiff(old_text, new_text)
+        pywikibot.showDiff(old_text, new_text)
         logger.info(f"{'='*60}")
 
         logger.info(
@@ -442,7 +444,7 @@ class BotConfig:
             logger.info("Auto-approving all remaining edits.")
             return ApprovalDecision.APPROVE
 
-        logger.error_red("Edit rejected.")
+        logger.error("<<red>> Edit rejected.")
         return ApprovalDecision.REJECT
 
     # -------------------------------------------------------------------------

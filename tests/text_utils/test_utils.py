@@ -1,7 +1,7 @@
 
 import pytest
 
-from utils import (
+from src.utils import (
     _build_category_pattern,
     category_in_text,
     is_ar_stub_or_maintenance_category,

@@ -1,82 +1,44 @@
 #!/usr/bin/env python3
 """
 Unused Categories Bot for Arabic Wikipedia.
-
-This bot processes unused categories on Arabic Wikipedia by:
-1. Fetching unused categories from Arabic Wikipedia's Special:UnusedCategories
-2. Finding corresponding categories on English Wikipedia via interwiki links
-3. Getting members of the English categories
-4. Finding Arabic equivalents of those articles
-5. Adding the Arabic category to articles that don't have it
-
-Usage:
-    python unused_categories_bot.py           # Process all unused categories
-    python unused_categories_bot.py ask       # Interactive confirmation mode
-    python unused_categories_bot.py -cat:CategoryName  # Process specific category
-
-Environment Variables:
-    WIKIPEDIA_BOT_USERNAME: Wikipedia bot account username
-    WIKIPEDIA_BOT_PASSWORD: Wikipedia bot account password
-
-Example:
-    Run with interactive confirmation::
-
-        $ python unused_categories_bot.py ask
-
-    Process a specific category::
-
-        $ python unused_categories_bot.py -cat:تصنيف:أفلام_مغامرات_سويسرية
-
-Notes:
-    - Requires a Wikipedia bot account with appropriate permissions
-    - Bot edits should comply with Wikipedia's bot policy
-    - Use 'ask' mode for testing and review before automated runs
-
 """
 
 from __future__ import annotations
 
-import os
 import sys
-from typing import TYPE_CHECKING, Final, Optional
+import logging
+import pywikibot
+from typing import Final, Optional  # , TYPE_CHECKING
 
 import mwclient
 import mwclient.errors
-from dotenv import load_dotenv
-
-from wiki_api import sub_cats_query_pages, get_interwiki_link
-from utils import (
-    showDiff,
-    logger,
+from .wiki_api import sub_cats_query_pages, get_interwiki_link
+from .utils import (
     en_page_has_category_in_text,
     category_in_text,
     is_ar_stub_or_maintenance_category,
     is_en_stub_or_maintenance_category,
     has_ar_category_redirect_template,
 )
-from utils.config import (
+from .utils.config import (
     BotConfig,
     Credentials,
-    ApprovalDecision,
+    # ApprovalDecision,
     DEFAULT_CATEGORY_LIMIT,
 )
-from utils.exceptions import (
+from .utils.exceptions import (
     BotError,
     CredentialError,
-    CategoryProcessingError,
-    PageProcessingError,
-    EditError,
-    APIError,
+    # CategoryProcessingError,
+    # PageProcessingError,
+    # EditError,
+    # APIError,
 )
-from utils.rate_limiter import SimpleRateLimiter
+from .utils.rate_limiter import SimpleRateLimiter
 
-if TYPE_CHECKING:
-    from utils.types import CategoryTitle, PageTitle
+# if TYPE_CHECKING: from utils.types import CategoryTitle, PageTitle
 
-
-# Initialize environment
-load_dotenv()
-
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Constants
@@ -107,6 +69,16 @@ def _get_config() -> BotConfig:
     if _config is None:
         _config = BotConfig()
     return _config
+
+
+def is_credentials_loaded() -> bool:
+    # Load credentials
+    try:
+        username, password = load_credentials()
+        return True
+    except CredentialError as e:
+        logger.error(str(e))
+    return False
 
 
 def set_ask_mode(enabled: bool) -> None:
@@ -197,7 +169,7 @@ def confirm_edit(page_title: str, old_text: str, new_text: str) -> bool:
     logger.info(f"{'='*60}")
 
     # Display the diff
-    showDiff(old_text, new_text)
+    pywikibot.showDiff(old_text, new_text)
     logger.info(f"{'='*60}")
 
     # Prompt for confirmation
@@ -224,7 +196,7 @@ def confirm_edit(page_title: str, old_text: str, new_text: str) -> bool:
         return True
 
     # Any other response means skip
-    logger.error_red("Edit skipped.")
+    logger.error("<<red>> Edit skipped.")
     return False
 
 
@@ -669,7 +641,7 @@ def process_category(
     for n, (en_member, ar_title) in enumerate(en_members.items(), start=1):
         # Check edit limits
         if not config.can_edit:
-            logger.info(f"Edit limit reached, stopping processing")
+            logger.info("Edit limit reached, stopping processing")
             break
 
         logger.info(
@@ -727,81 +699,10 @@ def process_category(
     return added_count
 
 
-# =============================================================================
-# Argument Parsing Functions
-# =============================================================================
+def load_sites(username, password, rate_limiter):
+    ar_site = None
+    en_site = None
 
-def parse_category_args() -> list[str]:
-    """
-    Parse command-line arguments for specific categories.
-
-    Looks for arguments in the format -cat:CategoryName and extracts
-    the category names. Underscores in the argument are replaced with spaces.
-
-    Returns:
-        A list of category names specified on the command line.
-
-    Example:
-        Command line: python bot.py -cat:تصنيف:علوم -cat:Category:Science
-        Returns: ["تصنيف:علوم", "Category:Science"]
-
-    """
-    categories: list[str] = []
-
-    for arg in sys.argv:
-        arg_key, _, value = arg.partition(":")
-        if arg_key == "-cat" and value:
-            # Replace underscores with spaces for wiki compatibility
-            categories.append(value.replace("_", " "))
-
-    return categories
-
-
-# =============================================================================
-# Main Entry Point
-# =============================================================================
-
-def main() -> None:
-    """
-    Main entry point for the Unused Categories Bot.
-
-    This function:
-    1. Parses command-line arguments for mode and category selection
-    2. Loads credentials and connects to Wikipedia sites
-    3. Fetches unused categories (or uses specified categories)
-    4. Processes each category to add it to relevant articles
-
-    Command-line Usage:
-        python unused_categories_bot.py           # Process all unused categories
-        python unused_categories_bot.py ask       # Interactive confirmation mode
-        python unused_categories_bot.py -cat:Cat  # Process specific category
-
-    """
-    global _config
-
-    # Check for "ask" argument to enable interactive confirmation mode
-    if 'ask' in sys.argv:
-        set_ask_mode(True)
-        logger.info("Interactive confirmation mode enabled.")
-
-    # Initialize config
-    config = _get_config()
-    logger.set_level(config.log_level.value)
-
-    logger.info("Starting Unused Categories Bot for Arabic Wikipedia")
-    logger.info("=" * 60)
-
-    # Load credentials
-    try:
-        username, password = load_credentials()
-    except CredentialError as e:
-        logger.error_red(str(e))
-        sys.exit(1)
-
-    # Create rate limiter
-    rate_limiter = SimpleRateLimiter(calls_per_second=config.rate_limit)
-
-    # Connect to Arabic and English Wikipedia
     try:
         ar_site = connect_to_wikipedia(
             'ar.wikipedia.org',
@@ -816,28 +717,15 @@ def main() -> None:
             rate_limiter=rate_limiter
         )
     except mwclient.errors.LoginError as e:
-        logger.error_red(f"Login failed: {e}")
-        sys.exit(1)
+        logger.error(f"<<red>> Login failed: {e}")
     except mwclient.errors.APIError as e:
-        logger.error_red(f"Connection error: {e}")
-        sys.exit(1)
+        logger.error(f"<<red>> Connection error: {e}")
 
-    # Get categories to process
-    unused_categories = parse_category_args()
+    return ar_site, en_site
 
-    if not unused_categories:
-        # Fetch unused categories from Arabic Wikipedia
-        unused_categories = get_unused_categories(
-            ar_site,
-            limit=config.category_limit,
-            rate_limiter=rate_limiter
-        )
 
-    if not unused_categories:
-        logger.info("No unused categories found")
-        return
-
-    # Process each category
+def categories_processor(unused_categories, rate_limiter, ar_site, en_site) -> int:
+    config = _get_config()
     total_added = 0
     for category in unused_categories:
         try:
@@ -854,16 +742,56 @@ def main() -> None:
         except Exception as e:
             # Log unexpected exceptions but continue processing
             logger.exception(f"Unexpected error processing category {category}: {e}")
+    return total_added
+
+
+def start_work(
+    unused_categories: list[str],
+) -> None:
+    """
+    """
+
+    # Initialize config
+    config = _get_config()
+
+    logger.info("Starting Unused Categories Bot for Arabic Wikipedia")
+    logger.info("=" * 60)
+    calls_per_second = config.rate_limit
+
+    # Load credentials
+    username, password = load_credentials()
+
+    # Create rate limiter
+    rate_limiter = SimpleRateLimiter(calls_per_second=calls_per_second)
+
+    # Connect to Arabic and English Wikipedia
+    ar_site, en_site = load_sites(username, password, rate_limiter)
+
+    if not ar_site or not en_site:
+        sys.exit(1)
+
+    if not unused_categories:
+        # Fetch unused categories from Arabic Wikipedia
+        unused_categories = get_unused_categories(
+            ar_site,
+            limit=config.category_limit,
+            rate_limiter=rate_limiter
+        )
+
+    if not unused_categories:
+        logger.info("No unused categories found")
+        return
+
+    # Process each category
+    total_added = categories_processor(unused_categories, rate_limiter, ar_site, en_site)
 
     # Print statistics
     logger.info("\n" + "=" * 60)
     logger.info(f"Bot execution completed. Total categories added: {total_added}")
     logger.info(f"Total edits made: {config.edits_made}")
+
     if rate_limiter:
         stats = rate_limiter.get_stats()
         logger.info(f"Rate limiter stats: {stats}")
+
     logger.info("=" * 60)
-
-
-if __name__ == "__main__":
-    main()

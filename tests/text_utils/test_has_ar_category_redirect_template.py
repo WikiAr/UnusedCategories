@@ -2,7 +2,7 @@
 
 import pytest
 
-from utils import (
+from src.utils import (
     has_ar_category_redirect_template
 )
 

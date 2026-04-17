@@ -1,3 +1,5 @@
 mwclient>=0.10.0
 python-dotenv>=1.2.1
 pytest>=9.0.2
+pywikibot
+colorlog
