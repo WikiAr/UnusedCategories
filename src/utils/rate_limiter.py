@@ -51,7 +51,6 @@ from typing import Generator, Optional
 
 from .exceptions import RateLimitError
 
-
 # =============================================================================
 # Constants
 # =============================================================================
@@ -69,6 +68,7 @@ MAX_WAIT_TIME: float = 60.0
 # =============================================================================
 # Simple Rate Limiter
 # =============================================================================
+
 
 class SimpleRateLimiter:
     """
@@ -118,9 +118,7 @@ class SimpleRateLimiter:
 
         """
         if calls_per_second <= 0:
-            raise ValueError(
-                f"calls_per_second must be positive, got {calls_per_second}"
-            )
+            raise ValueError(f"calls_per_second must be positive, got {calls_per_second}")
 
         self.calls_per_second = calls_per_second
         self.min_interval = max(1.0 / calls_per_second, MIN_REQUEST_INTERVAL)
@@ -155,8 +153,7 @@ class SimpleRateLimiter:
             if wait_time > 0:
                 if wait_time > self.max_wait:
                     raise RateLimitError(
-                        f"Required wait time ({wait_time:.2f}s) exceeds "
-                        f"maximum ({self.max_wait:.2f}s)",
+                        f"Required wait time ({wait_time:.2f}s) exceeds " f"maximum ({self.max_wait:.2f}s)",
                         retry_after=wait_time,
                         limit_type="rate_limit",
                     )
@@ -200,11 +197,7 @@ class SimpleRateLimiter:
 
         """
         with self._lock:
-            avg_wait = (
-                self._total_wait_time / self._total_waits
-                if self._total_waits > 0
-                else 0.0
-            )
+            avg_wait = self._total_wait_time / self._total_waits if self._total_waits > 0 else 0.0
             return {
                 "total_waits": self._total_waits,
                 "total_wait_time": self._total_wait_time,
@@ -246,6 +239,7 @@ class SimpleRateLimiter:
 # =============================================================================
 # Token Bucket Rate Limiter
 # =============================================================================
+
 
 @dataclass
 class TokenBucketRateLimiter:
@@ -349,9 +343,7 @@ class TokenBucketRateLimiter:
 
         """
         if tokens > self.burst:
-            raise ValueError(
-                f"Cannot acquire {tokens} tokens; burst capacity is {self.burst}"
-            )
+            raise ValueError(f"Cannot acquire {tokens} tokens; burst capacity is {self.burst}")
 
         with self._get_lock():
             self._refill()
@@ -366,8 +358,7 @@ class TokenBucketRateLimiter:
 
             if wait_time > self.max_wait:
                 raise RateLimitError(
-                    f"Required wait time ({wait_time:.2f}s) exceeds "
-                    f"maximum ({self.max_wait:.2f}s)",
+                    f"Required wait time ({wait_time:.2f}s) exceeds " f"maximum ({self.max_wait:.2f}s)",
                     retry_after=wait_time,
                     limit_type="rate_limit",
                 )
@@ -430,6 +421,7 @@ class TokenBucketRateLimiter:
 # =============================================================================
 # Adaptive Rate Limiter
 # =============================================================================
+
 
 class AdaptiveRateLimiter:
     """
@@ -504,10 +496,7 @@ class AdaptiveRateLimiter:
 
             # Increase rate every 10 consecutive successes
             if self._consecutive_successes >= 10:
-                new_rate = min(
-                    self.current_rate * self.recovery_factor,
-                    self.max_rate
-                )
+                new_rate = min(self.current_rate * self.recovery_factor, self.max_rate)
                 if new_rate != self.current_rate:
                     self.current_rate = new_rate
                     self._limiter = SimpleRateLimiter(calls_per_second=new_rate)
@@ -527,10 +516,7 @@ class AdaptiveRateLimiter:
             self._consecutive_successes = 0
 
             # Reduce rate
-            new_rate = max(
-                self.current_rate * self.backoff_factor,
-                self.min_rate
-            )
+            new_rate = max(self.current_rate * self.backoff_factor, self.min_rate)
             self.current_rate = new_rate
             self._limiter = SimpleRateLimiter(calls_per_second=new_rate)
 
@@ -593,6 +579,7 @@ class AdaptiveRateLimiter:
 # Factory Function
 # =============================================================================
 
+
 def create_rate_limiter(
     strategy: str = "simple",
     **kwargs,
@@ -625,10 +612,7 @@ def create_rate_limiter(
     }
 
     if strategy not in strategies:
-        raise ValueError(
-            f"Unknown strategy: {strategy}. "
-            f"Available: {', '.join(strategies.keys())}"
-        )
+        raise ValueError(f"Unknown strategy: {strategy}. " f"Available: {', '.join(strategies.keys())}")
 
     return strategies[strategy](**kwargs)
 

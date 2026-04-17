@@ -1,7 +1,6 @@
-
 import pytest
 
-from utils import (
+from src.utils import (
     en_page_has_category_in_text,
 )
 
@@ -12,40 +11,40 @@ class TestEnPageHasCategoryInText:
     def test_category_with_prefix(self) -> None:
         """Test finding category when name includes prefix."""
         text = "Article text\n[[Category:Science]]"
-        assert en_page_has_category_in_text(text, 'Category:Science')
+        assert en_page_has_category_in_text(text, "Category:Science")
 
     def test_category_without_prefix(self) -> None:
         """Test finding category when name doesn't include prefix."""
         text = "Article text\n[[Category:Science]]"
-        assert en_page_has_category_in_text(text, 'Science')
+        assert en_page_has_category_in_text(text, "Science")
 
     def test_category_with_sort_key(self) -> None:
         """Test finding category with sort key."""
         text = "[[Category:Science|Sort key]]"
-        assert en_page_has_category_in_text(text, 'Science')
+        assert en_page_has_category_in_text(text, "Science")
 
     def test_category_with_spaces(self) -> None:
         """Test finding category with spaces."""
         text = "[[ Category : Science ]]"
-        assert en_page_has_category_in_text(text, 'Science')
+        assert en_page_has_category_in_text(text, "Science")
 
     def test_category_not_found(self) -> None:
         """Test when category is not in text."""
         text = "Article text\n[[Category:Mathematics]]"
-        assert not en_page_has_category_in_text(text, 'Science')
+        assert not en_page_has_category_in_text(text, "Science")
 
     def test_case_insensitive_match(self) -> None:
         """Test case-insensitive matching."""
         text = "[[Category:SCIENCE]]"
-        assert en_page_has_category_in_text(text, 'Science')
-        assert en_page_has_category_in_text(text, 'science')
+        assert en_page_has_category_in_text(text, "Science")
+        assert en_page_has_category_in_text(text, "science")
 
     def test_multiple_categories(self) -> None:
         """Test finding specific category among multiple categories."""
         text = "[[Category:Science]]\n[[Category:Mathematics]]\n[[Category:Physics]]"
-        assert en_page_has_category_in_text(text, 'Science')
-        assert en_page_has_category_in_text(text, 'Mathematics')
-        assert not en_page_has_category_in_text(text, 'Chemistry')
+        assert en_page_has_category_in_text(text, "Science")
+        assert en_page_has_category_in_text(text, "Mathematics")
+        assert not en_page_has_category_in_text(text, "Chemistry")
 
     def test_en_page_has_category_in_text_found(self) -> None:
         text = "Article text\n[[Category:History]]\nMore text"

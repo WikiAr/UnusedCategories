@@ -1,11 +1,6 @@
-
 import pytest
 
-from utils import (
-    category_in_text,
-    is_ar_stub_or_maintenance_category,
-    is_en_stub_or_maintenance_category
-)
+from src.utils import category_in_text, is_ar_stub_or_maintenance_category, is_en_stub_or_maintenance_category
 
 
 @pytest.mark.fast
@@ -83,12 +78,7 @@ class TestCategoryDetection:
 
     def test_multiple_categories(self) -> None:
         """Multiple categories should all be detected correctly."""
-        text = (
-            "Some article text\n"
-            "[[تصنيف:تاريخ]]\n"
-            "[[تصنيف:علوم]]\n"
-            "[[تصنيف:جغرافيا]]\n"
-        )
+        text = "Some article text\n" "[[تصنيف:تاريخ]]\n" "[[تصنيف:علوم]]\n" "[[تصنيف:جغرافيا]]\n"
 
         assert category_in_text(text, "علوم") is True
         assert category_in_text(text, "تاريخ") is True
@@ -101,10 +91,6 @@ class TestCategoryDetection:
 
     def test_category_in_middle_of_text(self) -> None:
         """Category should be detected even if not at the end."""
-        text = (
-            "Article beginning\n"
-            "[[تصنيف:تاريخ]]\n"
-            "More article text here\n"
-        )
+        text = "Article beginning\n" "[[تصنيف:تاريخ]]\n" "More article text here\n"
 
         assert category_in_text(text, "تاريخ") is True

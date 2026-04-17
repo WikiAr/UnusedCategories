@@ -37,12 +37,9 @@ import re
 from functools import lru_cache
 from typing import Final
 
-
 # Pre-compiled regex pattern for detecting category redirect templates
 # Matches: {{تحويل تصنيف|...}} with optional whitespace
-_AR_CATEGORY_REDIRECT_PATTERN: Final[re.Pattern[str]] = re.compile(
-    r'\{\{\s*تحويل تصنيف\s*\|\s*[^\}]+\}\}'
-)
+_AR_CATEGORY_REDIRECT_PATTERN: Final[re.Pattern[str]] = re.compile(r"\{\{\s*تحويل تصنيف\s*\|\s*[^\}]+\}\}")
 
 
 def _build_category_pattern(category_name: str, prefix_pattern: str) -> str:
@@ -80,10 +77,7 @@ def _build_category_pattern(category_name: str, prefix_pattern: str) -> str:
         matching of the "Category" prefix in English.
 
     """
-    return (
-        r'\[\[\s*' + prefix_pattern + r'\s*:\s*' +
-        re.escape(category_name) + r'\s*(?:\|[^\]]*?)?\]\]'
-    )
+    return r"\[\[\s*" + prefix_pattern + r"\s*:\s*" + re.escape(category_name) + r"\s*(?:\|[^\]]*?)?\]\]"
 
 
 def category_in_text(text: str, category_name: str) -> bool:
@@ -121,7 +115,7 @@ def category_in_text(text: str, category_name: str) -> bool:
 
     """
     # Match [[تصنيف:...]] or [[Category:...]]
-    pattern = _build_category_pattern(category_name, '(?:تصنيف|Category)')
+    pattern = _build_category_pattern(category_name, "(?:تصنيف|Category)")
     return bool(re.search(pattern, text, re.IGNORECASE))
 
 
@@ -178,25 +172,20 @@ def en_page_has_category_in_text(
     if page_title.startswith("Category:") and "{{Title year range}}" in text:
         # Extract year pattern from the target category name
         # Matches: "1951–52", "1951-1952", "1951-", or single years
-        match_pattern = r'(\d\d\d\d–\d\d\d?\d?|\d+[–-]\d+|\d+)'
+        match_pattern = r"(\d\d\d\d–\d\d\d?\d?|\d+[–-]\d+|\d+)"
         if match := re.search(match_pattern, category_target):
             # Replace the template with the actual year for matching
             # Note: flags= keyword argument is required, not positional
-            text = re.sub(
-                r'\{\{Title year range\}\}',
-                match.group(1),
-                text,
-                flags=re.IGNORECASE
-            )
+            text = re.sub(r"\{\{Title year range\}\}", match.group(1), text, flags=re.IGNORECASE)
 
     # Remove prefix if present for matching
-    if ':' in category_target:
-        cat_name_without_prefix = category_target.split(':', 1)[1]
+    if ":" in category_target:
+        cat_name_without_prefix = category_target.split(":", 1)[1]
     else:
         cat_name_without_prefix = category_target
 
     # Match [[Category:...]] with optional sort key
-    pattern = _build_category_pattern(cat_name_without_prefix, 'Category')
+    pattern = _build_category_pattern(cat_name_without_prefix, "Category")
     return bool(re.search(pattern, text, re.IGNORECASE))
 
 
@@ -237,19 +226,19 @@ def is_ar_stub_or_maintenance_category(category_name: str) -> bool:
 
     """
     # Remove prefix if present
-    if ':' in category_name:
-        category_name = category_name.split(':', 1)[1]
+    if ":" in category_name:
+        category_name = category_name.split(":", 1)[1]
 
     # Check if category name starts with "بذرة" (stub, singular)
-    if category_name.startswith('بذرة'):
+    if category_name.startswith("بذرة"):
         return True
 
     # Check for stub-related terms (بذور = stubs, plural)
-    if 'بذور' in category_name:
+    if "بذور" in category_name:
         return True
 
     # Check for maintenance-related terms (صيانة = maintenance)
-    if 'صيانة' in category_name:
+    if "صيانة" in category_name:
         return True
 
     return False
@@ -289,18 +278,18 @@ def is_en_stub_or_maintenance_category(category_name: str) -> bool:
 
     """
     # Remove prefix if present
-    if ':' in category_name:
-        category_name = category_name.split(':', 1)[1]
+    if ":" in category_name:
+        category_name = category_name.split(":", 1)[1]
 
     # Convert to lowercase for case-insensitive matching
     category_name_lower = category_name.lower()
 
     # Check for stub-related terms
-    if 'stub' in category_name_lower:
+    if "stub" in category_name_lower:
         return True
 
     # Check for maintenance-related terms
-    if 'maintenance' in category_name_lower:
+    if "maintenance" in category_name_lower:
         return True
 
     return False

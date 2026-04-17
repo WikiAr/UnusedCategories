@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 from typing import NoReturn
+
 import pytest
 
 
@@ -11,7 +11,7 @@ class TestAskMode:
 
     def test_set_ask_mode(self) -> None:
         """Ask mode should be enabled and disabled correctly."""
-        from unused_categories_bot import set_ask_mode, is_ask_mode
+        from src.unused_categories_bot import is_ask_mode, set_ask_mode
 
         set_ask_mode(False)
         assert is_ask_mode() is False
@@ -24,7 +24,7 @@ class TestAskMode:
 
     def test_confirm_edit_without_ask_mode(self) -> None:
         """confirm_edit should return True when ask mode is disabled."""
-        from unused_categories_bot import confirm_edit, set_ask_mode
+        from src.unused_categories_bot import confirm_edit, set_ask_mode
 
         set_ask_mode(False)
         result = confirm_edit("Test Page", "old text", "new text")
@@ -33,8 +33,8 @@ class TestAskMode:
 
     def test_confirm_edit_with_yes_response(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """confirm_edit should return True when user enters 'y'."""
-        import unused_categories_bot
-        from unused_categories_bot import confirm_edit, set_ask_mode
+        import src.unused_categories_bot as unused_categories_bot
+        from src.unused_categories_bot import confirm_edit, set_ask_mode
 
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
@@ -48,8 +48,8 @@ class TestAskMode:
 
     def test_confirm_edit_with_empty_response(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """confirm_edit should return True when user enters empty string."""
-        import unused_categories_bot
-        from unused_categories_bot import confirm_edit, set_ask_mode
+        import src.unused_categories_bot as unused_categories_bot
+        from src.unused_categories_bot import confirm_edit, set_ask_mode
 
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
@@ -63,8 +63,8 @@ class TestAskMode:
 
     def test_confirm_edit_with_no_response(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """confirm_edit should return False when user enters 'n'."""
-        import unused_categories_bot
-        from unused_categories_bot import confirm_edit, set_ask_mode
+        import src.unused_categories_bot as unused_categories_bot
+        from src.unused_categories_bot import confirm_edit, set_ask_mode
 
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
@@ -78,8 +78,8 @@ class TestAskMode:
 
     def test_confirm_edit_with_all_response(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Entering 'a' should enable auto_approve_all."""
-        import unused_categories_bot
-        from unused_categories_bot import confirm_edit, set_ask_mode
+        import src.unused_categories_bot as unused_categories_bot
+        from src.unused_categories_bot import confirm_edit, set_ask_mode
 
         unused_categories_bot._auto_approve_all = False
         set_ask_mode(True)
@@ -96,8 +96,8 @@ class TestAskMode:
 
     def test_confirm_edit_auto_approve_skips_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """input() should not be called when auto_approve_all is True."""
-        import unused_categories_bot
-        from unused_categories_bot import confirm_edit, set_ask_mode
+        import src.unused_categories_bot as unused_categories_bot
+        from src.unused_categories_bot import confirm_edit, set_ask_mode
 
         unused_categories_bot._auto_approve_all = True
         set_ask_mode(True)

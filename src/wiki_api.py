@@ -25,23 +25,19 @@ Notes:
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Optional
 
 import mwclient
 import mwclient.errors
 
-from utils import logger
-
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from utils.types import (
-        CategoryTitle,
+    # from collections.abc import Iterator
+    from .utils.types import (  # CategoryTitle,; PageTitle,; MediaWikiSite,; MediaWikiPage,
         LanguageCode,
-        PageTitle,
-        MediaWikiSite,
-        MediaWikiPage,
     )
 
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Constants
@@ -60,6 +56,7 @@ NAMESPACE_ALL: str = "*"
 # =============================================================================
 # Category Member Functions
 # =============================================================================
+
 
 def get_category_members(
     site: mwclient.Site,
@@ -116,6 +113,7 @@ def get_category_members(
 # =============================================================================
 # Query Functions
 # =============================================================================
+
 
 def sub_cats_query(
     site: mwclient.Site,
@@ -201,13 +199,9 @@ def sub_cats_query(
     }
 
     # Filter to only pages with Arabic interwiki links
-    pages_with_ar: dict[str, str] = {
-        k: v for k, v in pages.items() if v is not None
-    }
+    pages_with_ar: dict[str, str] = {k: v for k, v in pages.items() if v is not None}
 
-    logger.info(
-        f"<<lightblue>> sub_cats_query: {len(pages)=}, {len(pages_with_ar)=}"
-    )
+    logger.info(f"<<lightblue>> sub_cats_query: {len(pages)=}, {len(pages_with_ar)=}")
 
     return pages_with_ar
 
@@ -258,6 +252,7 @@ def sub_cats_query_pages(
 # =============================================================================
 # Interwiki Link Functions
 # =============================================================================
+
 
 def get_interwiki_link(
     page: mwclient.page.Page,

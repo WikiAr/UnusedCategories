@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 
 class RedirectPage:
@@ -26,28 +25,28 @@ class TestRedirectPageCheck:
     """Test the redirect page check functionality."""
 
     def test_redirect_page_detected(self) -> None:
-        from unused_categories_bot import is_redirect_page
+        from src.unused_categories_bot import is_redirect_page
+
         page = RedirectPage()
         assert is_redirect_page(page) is True
 
     def test_non_redirect_page_not_flagged(self) -> None:
-        from unused_categories_bot import is_redirect_page
+        from src.unused_categories_bot import is_redirect_page
 
         page = NormalPage()
         assert is_redirect_page(page) is False
 
     def test_redirect_check_handles_api_error(self) -> None:
-        from unused_categories_bot import is_redirect_page
         import mwclient.errors
 
-        page = ErrorRedirectPage(
-            mwclient.errors.APIError("error", "info", {})
-        )
+        from src.unused_categories_bot import is_redirect_page
+
+        page = ErrorRedirectPage(mwclient.errors.APIError("error", "info", {}))
 
         assert is_redirect_page(page) is False
 
     def test_add_category_skips_redirect_page(self) -> None:
-        from unused_categories_bot import add_category_to_page
+        from src.unused_categories_bot import add_category_to_page
 
         class Page:
             name = "Redirect Page"

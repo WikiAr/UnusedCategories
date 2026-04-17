@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 import pytest
 
@@ -19,19 +18,21 @@ class TestGetUnusedCategories:
     """Test the unused categories fetching functionality."""
 
     def test_get_unused_categories_returns_results(self) -> None:
-        from unused_categories_bot import get_unused_categories
+        from src.unused_categories_bot import get_unused_categories
 
-        site = FakeSite({
-            "query": {
-                "querypage": {
-                    "name": "Unusedcategories",
-                    "results": [
-                        {"title": "تصنيف:تاريخ", "ns": 14},
-                        {"title": "تصنيف:علوم", "ns": 14},
-                    ],
+        site = FakeSite(
+            {
+                "query": {
+                    "querypage": {
+                        "name": "Unusedcategories",
+                        "results": [
+                            {"title": "تصنيف:تاريخ", "ns": 14},
+                            {"title": "تصنيف:علوم", "ns": 14},
+                        ],
+                    }
                 }
             }
-        })
+        )
 
         categories = get_unused_categories(site, limit=10)
 
@@ -49,22 +50,24 @@ class TestGetUnusedCategories:
         assert categories[1] == "تصنيف:علوم", str(categories)
 
     def test_get_unused_categories_empty_results(self) -> None:
-        from unused_categories_bot import get_unused_categories
+        from src.unused_categories_bot import get_unused_categories
 
-        site = FakeSite({
-            "query": {
-                "querypage": {
-                    "name": "Unusedcategories",
-                    "results": [],
+        site = FakeSite(
+            {
+                "query": {
+                    "querypage": {
+                        "name": "Unusedcategories",
+                        "results": [],
+                    }
                 }
             }
-        })
+        )
 
         categories = get_unused_categories(site, limit=10)
         assert categories == []
 
     def test_get_unused_categories_missing_query(self) -> None:
-        from unused_categories_bot import get_unused_categories
+        from src.unused_categories_bot import get_unused_categories
 
         site = FakeSite({})
         categories = get_unused_categories(site, limit=10)
