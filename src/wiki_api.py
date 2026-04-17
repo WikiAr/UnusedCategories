@@ -33,7 +33,7 @@ import mwclient.errors
 
 if TYPE_CHECKING:
     # from collections.abc import Iterator
-    from src.utils.types import (  # CategoryTitle,; PageTitle,; MediaWikiSite,; MediaWikiPage,
+    from .utils.types import (  # CategoryTitle,; PageTitle,; MediaWikiSite,; MediaWikiPage,
         LanguageCode,
     )
 
