@@ -27,21 +27,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+import logging
 import mwclient
 import mwclient.errors
 
-from src.utils import logger
-
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    # from collections.abc import Iterator
     from src.utils.types import (
-        CategoryTitle,
+        # CategoryTitle,
         LanguageCode,
-        PageTitle,
-        MediaWikiSite,
-        MediaWikiPage,
+        # PageTitle,
+        # MediaWikiSite,
+        # MediaWikiPage,
     )
 
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Constants
