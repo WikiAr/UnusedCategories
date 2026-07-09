@@ -37,7 +37,7 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             become ${{ secrets.TOOL }} bash -lc "
-              cp -rf /mnt/nfs/labstore-secondary-tools-home/${{ secrets.USERNAME }}/temp_path_uncat/* ~/bots/UnusedCategories &&
+              cp -rf /mnt/nfs/labstore-secondary-tools-home/${{ secrets.USERNAME }}/temp_path_uncat/* ~/BOTS_REPOS/UnusedCategories &&
               echo 'Deployment completed successfully.'
             "
             rm -rf temp_path_uncat
