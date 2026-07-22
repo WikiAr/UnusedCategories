@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Optional
 
 import mwclient
 import mwclient.errors
+from mwclient.page import Page
 
 if TYPE_CHECKING:
     # from collections.abc import Iterator
@@ -62,7 +63,7 @@ def get_category_members(
     site: mwclient.Site,
     category_title: str,
     namespace: int = 0,
-) -> list[mwclient.page.Page]:
+) -> list[Page]:
     """
     Retrieve all members of a specified category from a MediaWiki site.
 
@@ -177,7 +178,7 @@ def sub_cats_query(
     logger.info(f"<<lightblue>> sub_cats_query: {enlink=}")
 
     try:
-        result = site.api(**params)
+        result = site.api(**params)  # type: ignore
     except mwclient.errors.APIError as e:
         logger.warning(f"API error in sub_cats_query for {enlink}: {e}")
         return {}
@@ -211,7 +212,7 @@ def sub_cats_query_pages(
     enlink: str,
     namespace: str = NAMESPACE_ALL,
     lllang: LanguageCode = "ar",
-) -> dict[mwclient.page.Page, str]:
+) -> dict[Page, str]:
     """
     Query category members and return Page objects with their interwiki links.
 
@@ -243,9 +244,7 @@ def sub_cats_query_pages(
 
     """
     pages_with_ar = sub_cats_query(site, enlink, namespace, lllang)
-    page_objects: dict[mwclient.page.Page, str] = {
-        site.pages[title]: lang_title for title, lang_title in pages_with_ar.items()
-    }
+    page_objects: dict[Page, str] = {site.pages[title]: lang_title for title, lang_title in pages_with_ar.items()}
     return page_objects
 
 
@@ -255,7 +254,7 @@ def sub_cats_query_pages(
 
 
 def get_interwiki_link(
-    page: mwclient.page.Page,
+    page: Page,
     target_lang: LanguageCode,
 ) -> Optional[str]:
     """
@@ -308,7 +307,7 @@ def get_category_members_pages(
     category_title: str,
     namespace: int = 0,
     lllang: LanguageCode = "ar",
-) -> dict[mwclient.page.Page, str]:
+) -> dict[Page, str]:
     """
     Get category members with their interwiki links (two-step approach).
 
@@ -337,7 +336,7 @@ def get_category_members_pages(
 
     """
     members = get_category_members(site, category_title, namespace)
-    data: dict[mwclient.page.Page, str] = {}
+    data: dict[Page, str] = {}
 
     for member in members:
         lang_title = get_interwiki_link(member, lllang)

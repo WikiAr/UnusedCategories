@@ -14,21 +14,21 @@ This package implements a **MediaWiki bot** that automatically populates unused 
 
 ### Main Modules and Components
 
-| Module | Purpose |
-|--------|---------|
-| `start.py` | CLI entry point; parses `-cat:` arguments and `ask` mode flag |
-| `unused_categories_bot.py` | Core bot logic: category filtering, page analysis, edit workflow, cross-wiki processing |
-| `wiki_api.py` | MediaWiki API utilities: category member retrieval, interwiki link resolution |
-| `utils/` | Subpackage with configuration, exceptions, rate limiting, text processing, and type definitions |
+| Module                     | Purpose                                                                                         |
+| -------------------------- | ----------------------------------------------------------------------------------------------- |
+| `start.py`                 | CLI entry point; parses `-cat:` arguments and `ask` mode flag                                   |
+| `unused_categories_bot.py` | Core bot logic: category filtering, page analysis, edit workflow, cross-wiki processing         |
+| `wiki_api.py`              | MediaWiki API utilities: category member retrieval, interwiki link resolution                   |
+| `utils/`                   | Subpackage with configuration, exceptions, rate limiting, text processing, and type definitions |
 
 ### Technologies, Frameworks, and Dependencies
 
-- **Python 3.13+** (per `pyproject.toml` target)
-- **mwclient** - MediaWiki API client for bot operations
-- **pywikibot** - Used for diff display (`showDiff`) in interactive mode
-- **python-dotenv** - Environment variable loading from `.env` files
-- **colorlog** - Colored console logging
-- **pytest** - Test framework
+-   **Python 3.13+** (per `pyproject.toml` target)
+-   **mwclient** - MediaWiki API client for bot operations
+-   **pywikibot** - Used for diff display (`showDiff`) in interactive mode
+-   **python-dotenv** - Environment variable loading from `.env` files
+-   **colorlog** - Colored console logging
+-   **pytest** - Test framework
 
 ---
 
@@ -54,40 +54,42 @@ src/
 ```
 
 **Strengths of organization:**
-- Clear separation between API layer (`wiki_api.py`) and business logic (`unused_categories_bot.py`)
-- Utility subpackage isolates cross-cutting concerns
-- Type definitions are centralized in `types.py`
+
+-   Clear separation between API layer (`wiki_api.py`) and business logic (`unused_categories_bot.py`)
+-   Utility subpackage isolates cross-cutting concerns
+-   Type definitions are centralized in `types.py`
 
 **Weaknesses of organization:**
-- `unused_categories_bot.py` is a monolithic 750-line module mixing connection management, category analysis, page analysis, edit logic, and orchestration
-- Global mutable state (`_config`, `_ask_mode`, `_auto_approve_all`) creates implicit coupling
+
+-   `unused_categories_bot.py` is a monolithic 750-line module mixing connection management, category analysis, page analysis, edit logic, and orchestration
+-   Global mutable state (`_config`, `_ask_mode`, `_auto_approve_all`) creates implicit coupling
 
 ### Design Patterns Used
 
-| Pattern | Usage | Assessment |
-|---------|-------|------------|
-| **Dataclass** | `BotConfig`, `Credentials` | Well-used with validation in `__post_init__` |
-| **Factory Method** | `BotConfig.from_env()`, `BotConfig.for_interactive()`, `BotConfig.for_production()` | Clean, idiomatic |
-| **Protocol (Structural Typing)** | `MediaWikiPage`, `MediaWikiSite`, `PageAccessor` | Excellent for testability and mock support |
-| **Custom Exception Hierarchy** | `BotError` -> `ConfigurationError`, `APIError`, `ProcessingError` | Well-designed with context attributes |
-| **Context Manager** | Rate limiters (`with limiter:`) | Correct implementation |
-| **Strategy Pattern** | `create_rate_limiter()` factory with "simple", "token_bucket", "adaptive" | Good extensibility |
+| Pattern                          | Usage                                                                               | Assessment                                   |
+| -------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------- |
+| **Dataclass**                    | `BotConfig`, `Credentials`                                                          | Well-used with validation in `__post_init__` |
+| **Factory Method**               | `BotConfig.from_env()`, `BotConfig.for_interactive()`, `BotConfig.for_production()` | Clean, idiomatic                             |
+| **Protocol (Structural Typing)** | `MediaWikiPage`, `MediaWikiSite`, `PageAccessor`                                    | Excellent for testability and mock support   |
+| **Custom Exception Hierarchy**   | `BotError` -> `ConfigurationError`, `APIError`, `ProcessingError`                   | Well-designed with context attributes        |
+| **Context Manager**              | Rate limiters (`with limiter:`)                                                     | Correct implementation                       |
+| **Strategy Pattern**             | `create_rate_limiter()` factory with "simple", "token_bucket", "adaptive"           | Good extensibility                           |
 
 ### Maintainability
 
-- **Moderate.** The core bot module is too large and should be split. Functions are well-documented with docstrings, but the interplay between global state and `BotConfig` creates confusion.
-- Commented-out imports (`# , TYPE_CHECKING`, `# ApprovalDecision,`) suggest incomplete refactoring.
+-   **Moderate.** The core bot module is too large and should be split. Functions are well-documented with docstrings, but the interplay between global state and `BotConfig` creates confusion.
+-   Commented-out imports (`# , TYPE_CHECKING`, `# ApprovalDecision,`) suggest incomplete refactoring.
 
 ### Readability
 
-- **Good.** Consistent use of section headers (`# ====`), comprehensive docstrings with `Args/Returns/Example` sections, and meaningful variable names.
-- The color markup in log messages (e.g., `<<green>>`, `<<yellow>>`) is a custom convention that could confuse new contributors without documentation.
+-   **Good.** Consistent use of section headers (`# ====`), comprehensive docstrings with `Args/Returns/Example` sections, and meaningful variable names.
+-   The color markup in log messages (e.g., `<<green>>`, `<<yellow>>`) is a custom convention that could confuse new contributors without documentation.
 
 ### Scalability Considerations
 
-- Rate limiting is properly implemented with three strategies (simple, token bucket, adaptive).
-- The `sub_cats_query` function uses `gcmlimit=max` which could be memory-intensive for very large categories.
-- No pagination support for `get_unused_categories` -- it fetches a single batch up to `limit`.
+-   Rate limiting is properly implemented with three strategies (simple, token bucket, adaptive).
+-   The `sub_cats_query` function uses `gcmlimit=max` which could be memory-intensive for very large categories.
+-   No pagination support for `get_unused_categories` -- it fetches a single batch up to `limit`.
 
 ---
 
@@ -114,12 +116,13 @@ src/
 ### 1. Monolithic Core Module
 
 `unused_categories_bot.py` at ~750 lines handles too many responsibilities:
-- Credential management
-- Wikipedia site connection
-- Category filtering logic
-- Page redirect detection
-- Edit workflow (confirmation, dry run, saving)
-- Orchestration of the full pipeline
+
+-   Credential management
+-   Wikipedia site connection
+-   Category filtering logic
+-   Page redirect detection
+-   Edit workflow (confirmation, dry run, saving)
+-   Orchestration of the full pipeline
 
 **Recommendation:** Split into `connection.py`, `category_filters.py`, `page_editor.py`, and `pipeline.py`.
 
@@ -153,6 +156,7 @@ except mwclient.errors.APIError as e:
 ### 4. Dead/Commented-Out Code
 
 Multiple commented-out imports suggest incomplete refactoring:
+
 ```python
 from typing import Final, Optional  # , TYPE_CHECKING
 from .utils.config import (  # ApprovalDecision,
@@ -162,6 +166,7 @@ from .utils.exceptions import (  # CategoryProcessingError,; PageProcessingError
 ### 5. Missing Type Annotations on Some Functions
 
 `load_sites` and `categories_processor` lack parameter type annotations:
+
 ```python
 def load_sites(username, password, rate_limiter):  # No types
 def categories_processor(unused_categories, rate_limiter, ar_site, en_site) -> int:  # No param types
@@ -174,6 +179,7 @@ def categories_processor(unused_categories, rate_limiter, ar_site, en_site) -> i
 ### 1. Credential Exposure Risk
 
 The `.env` file contains live bot credentials:
+
 ```
 WIKIPEDIA_BOT_USERNAME=Mr.Ibrahembot
 WIKIPEDIA_BOT_PASSWORD=Mr.Ibrahembot@uh7qkaceq2jfb7qs03qhnl5p2r03k0r5
@@ -230,34 +236,40 @@ For categories with tens of thousands of members, this loads everything into mem
 ## Areas That Need Attention
 
 ### Missing Files
-- **No `__main__.py`** - Cannot run with `python -m src`
-- **No `py.typed` marker** - Type annotations won't be recognized by type checkers in consuming code
-- **No `CHANGELOG.md`** - No version history tracking
+
+-   **No `__main__.py`** - Cannot run with `python -m src`
+-   **No `py.typed` marker** - Type annotations won't be recognized by type checkers in consuming code
+-   **No `CHANGELOG.md`** - No version history tracking
 
 ### Missing Documentation
-- The color markup convention (`<<green>>`, `<<yellow>>`, `<<red>>`, `<<purple>>`, `<<lightblue>>`) used in log messages is undocumented
-- No architecture decision records explaining the choice of mwclient vs pywikibot (both are used)
-- `types.py` defines `T_co` and `T_contra` type variables that are never used anywhere
+
+-   The color markup convention (`<<green>>`, `<<yellow>>`, `<<red>>`, `<<purple>>`, `<<lightblue>>`) used in log messages is undocumented
+-   No architecture decision records explaining the choice of mwclient vs pywikibot (both are used)
+-   `types.py` defines `T_co` and `T_contra` type variables that are never used anywhere
 
 ### Lack of Tests
-- **No tests for `unused_categories_bot.py`** - The core module with the most complex logic has zero direct unit tests
-- Tests exist for: ask mode, credentials, get_unused_categories, is_hidden_category, redirects, text_utils
-- No integration tests that exercise the full pipeline
-- No tests for `wiki_api.py` functions
+
+-   **No tests for `unused_categories_bot.py`** - The core module with the most complex logic has zero direct unit tests
+-   Tests exist for: ask mode, credentials, get_unused_categories, is_hidden_category, redirects, text_utils
+-   No integration tests that exercise the full pipeline
+-   No tests for `wiki_api.py` functions
 
 ### Outdated Dependencies
-- `requirements.txt` has no version pins for `pywikibot` and `colorlog`
-- `pyproject.toml` targets Python 3.13 but `requirements.txt` says "Python 3.6+" -- contradictory
+
+-   `requirements.txt` has no version pins for `pywikibot` and `colorlog`
+-   `pyproject.toml` targets Python 3.13 but `requirements.txt` says "Python 3.6+" -- contradictory
 
 ### Configuration Issues
-- `run.py` has `if setup_logging:` which is always truthy (it's a function reference), suggesting a bug or unclear intent
-- `start.py` duplicates logic that exists in `unused_categories_bot.py` (credential checking, category parsing)
+
+-   `run.py` has `if setup_logging:` which is always truthy (it's a function reference), suggesting a bug or unclear intent
+-   `start.py` duplicates logic that exists in `unused_categories_bot.py` (credential checking, category parsing)
 
 ---
 
 ## Improvement Plan
 
 ### Quick Wins (1-2 days)
+
 1. Remove all commented-out imports and dead code
 2. Add type annotations to `load_sites()` and `categories_processor()`
 3. Fix `run.py`'s `if setup_logging:` check (should probably be `if setup_logging is not None:` or removed)
@@ -265,20 +277,22 @@ For categories with tens of thousands of members, this loads everything into mem
 5. Pin all dependency versions in `requirements.txt`
 
 ### Medium-Term Improvements (1-2 weeks)
+
 1. **Split `unused_categories_bot.py`** into focused modules:
-   - `connection.py` - `load_credentials()`, `connect_to_wikipedia()`, `load_sites()`
-   - `category_filters.py` - `is_hidden_category()`, `should_skip_ar_category()`, `should_skip_en_category()`
-   - `page_editor.py` - `add_category_to_page()`, `confirm_edit()`, `is_redirect_page()`
-   - `pipeline.py` - `process_category()`, `categories_processor()`, `start_work()`
+    - `connection.py` - `load_credentials()`, `connect_to_wikipedia()`, `load_sites()`
+    - `category_filters.py` - `is_hidden_category()`, `should_skip_ar_category()`, `should_skip_en_category()`
+    - `page_editor.py` - `add_category_to_page()`, `confirm_edit()`, `is_redirect_page()`
+    - `pipeline.py` - `process_category()`, `categories_processor()`, `start_work()`
 2. **Eliminate global state** - Pass `BotConfig` explicitly through all function calls
 3. **Add retry logic** with exponential backoff for transient API failures
 4. **Implement pagination** for `get_unused_categories()` and `sub_cats_query()`
 5. **Use `AdaptiveRateLimiter`** instead of `SimpleRateLimiter` in production code
 
 ### Long-Term Refactoring (1+ months)
+
 1. **Add comprehensive test coverage** for the core bot logic, including:
-   - Mock-based tests using the existing `MediaWikiPage`/`MediaWikiSite` protocols
-   - Integration test with recorded API responses
+    - Mock-based tests using the existing `MediaWikiPage`/`MediaWikiSite` protocols
+    - Integration test with recorded API responses
 2. **Implement proper logging** instead of custom color markup in log messages (use structured logging)
 3. **Add CI/CD pipeline** with linting (ruff), type checking (mypy), and test execution
 4. **Create a proper CLI** using `argparse` or `click` instead of manual `sys.argv` parsing
@@ -288,12 +302,12 @@ For categories with tens of thousands of members, this loads everything into mem
 
 ## Comprehensive Review
 
-| Metric | Score | Notes |
-|--------|-------|-------|
-| **Overall Rating** | **6.5/10** | Solid foundations, but needs structural cleanup |
-| **Production Readiness** | Partially Ready | Works for manual/semi-automated runs; not ready for unattended production use without retry logic and better error recovery |
-| **Technical Debt** | Moderate | Global state, monolithic module, commented-out code, unused type variables |
-| **Risk Assessment** | Medium | Credential handling needs hardening; no retry logic means silent failures on transient errors; unbounded API responses could cause OOM on large categories |
-| **Maintainability Score** | 6/10 | Good documentation and type hints, but the monolithic core module and global state make changes risky |
-| **Test Coverage** | Low-Medium | Utils are well-tested; core bot logic has no direct tests |
-| **Code Quality** | 7/10 | Clean style, good docstrings, proper use of dataclasses and protocols; undermined by global state and dead code |
+| Metric                    | Score           | Notes                                                                                                                                                      |
+| ------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Overall Rating**        | **6.5/10**      | Solid foundations, but needs structural cleanup                                                                                                            |
+| **Production Readiness**  | Partially Ready | Works for manual/semi-automated runs; not ready for unattended production use without retry logic and better error recovery                                |
+| **Technical Debt**        | Moderate        | Global state, monolithic module, commented-out code, unused type variables                                                                                 |
+| **Risk Assessment**       | Medium          | Credential handling needs hardening; no retry logic means silent failures on transient errors; unbounded API responses could cause OOM on large categories |
+| **Maintainability Score** | 6/10            | Good documentation and type hints, but the monolithic core module and global state make changes risky                                                      |
+| **Test Coverage**         | Low-Medium      | Utils are well-tested; core bot logic has no direct tests                                                                                                  |
+| **Code Quality**          | 7/10            | Clean style, good docstrings, proper use of dataclasses and protocols; undermined by global state and dead code                                            |

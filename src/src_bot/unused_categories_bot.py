@@ -12,6 +12,7 @@ from typing import Final, Optional  # , TYPE_CHECKING
 import mwclient
 import mwclient.errors
 import pywikibot
+from mwclient.page import Page
 
 from .utils import (
     category_in_text,
@@ -199,7 +200,7 @@ def confirm_edit(page_title: str, old_text: str, new_text: str) -> bool:
 # =============================================================================
 
 
-def is_hidden_category(category_page: mwclient.page.Page) -> bool:
+def is_hidden_category(category_page: Page) -> bool:
     """
     Check if a category is a hidden category on Wikipedia.
 
@@ -234,7 +235,7 @@ def is_hidden_category(category_page: mwclient.page.Page) -> bool:
     return False
 
 
-def should_skip_ar_category(category_page: mwclient.page.Page) -> bool:
+def should_skip_ar_category(category_page: Page) -> bool:
     """
     Determine if an Arabic category should be skipped during processing.
 
@@ -263,7 +264,7 @@ def should_skip_ar_category(category_page: mwclient.page.Page) -> bool:
     return False
 
 
-def should_skip_en_category(category_page: mwclient.page.Page) -> bool:
+def should_skip_en_category(category_page: Page) -> bool:
     """
     Determine if an English category should be skipped during processing.
 
@@ -297,7 +298,7 @@ def should_skip_en_category(category_page: mwclient.page.Page) -> bool:
 # =============================================================================
 
 
-def is_redirect_page(page: mwclient.page.Page) -> bool:
+def is_redirect_page(page: Page) -> bool:
     """
     Check if a page is a redirect page.
 
@@ -455,7 +456,7 @@ def get_unused_categories(
 
 
 def add_category_to_page(
-    page: mwclient.page.Page,
+    page: Page,
     category_name: str,
     summary: str,
     config: Optional[BotConfig] = None,

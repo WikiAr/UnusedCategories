@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.utils import has_ar_category_redirect_template
+from src.src_bot.utils import has_ar_category_redirect_template
 
 
 class TestHasArCategoryRedirectTemplate:

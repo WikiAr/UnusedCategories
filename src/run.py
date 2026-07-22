@@ -45,8 +45,8 @@ from logging_config import setup_logging
 
 if setup_logging:
     setup_logging(
-        "src",
-        logging.DEBUG if "debug" in sys.argv else logging.INFO,
+        level=logging.DEBUG if "debug" in sys.argv else logging.INFO,
+        name="src",
     )
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ def main() -> None:
         python run.py -cat:Cat  # Process specific category
 
     """
-    from src import main_entry
+    from src_bot import main_entry
 
     main_entry()
 

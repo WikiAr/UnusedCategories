@@ -17,7 +17,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.utils.config import (
+from src.src_bot.utils.config import (
     DEFAULT_CATEGORY_LIMIT,
     DEFAULT_EDIT_SUMMARY,
     DEFAULT_RATE_LIMIT,
@@ -26,7 +26,7 @@ from src.utils.config import (
     Credentials,
     LogLevel,
 )
-from src.utils.exceptions import (
+from src.src_bot.utils.exceptions import (
     APIError,
     BotError,
     CategoryProcessingError,
@@ -37,13 +37,13 @@ from src.utils.exceptions import (
     RateLimitError,
     ValidationError,
 )
-from src.utils.rate_limiter import (
+from src.src_bot.utils.rate_limiter import (
     AdaptiveRateLimiter,
     SimpleRateLimiter,
     TokenBucketRateLimiter,
     create_rate_limiter,
 )
-from src.utils.types import (
+from src.src_bot.utils.types import (
     is_valid_page,
     is_valid_site,
 )
