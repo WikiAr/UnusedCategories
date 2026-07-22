@@ -26,7 +26,7 @@ Notes:
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import mwclient
 import mwclient.errors
@@ -190,7 +190,7 @@ def sub_cats_query(
         return {}
 
     # Build a dict of title -> langlink_title (or None if no langlink)
-    pages: dict[str, Optional[str]] = {
+    pages: dict[str, str | None] = {
         page["title"]: next(
             (ll["title"] for ll in page.get("langlinks", []) if ll["lang"] == lllang),
             None,
@@ -256,7 +256,7 @@ def sub_cats_query_pages(
 def get_interwiki_link(
     page: Page,
     target_lang: LanguageCode,
-) -> Optional[str]:
+) -> str | None:
     """
     Retrieve the interwiki link from a page to a target language.
 

@@ -34,7 +34,6 @@ Notes:
 from __future__ import annotations
 
 import re
-from functools import lru_cache
 from typing import Final
 
 # Pre-compiled regex pattern for detecting category redirect templates

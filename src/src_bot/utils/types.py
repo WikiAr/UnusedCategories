@@ -40,9 +40,7 @@ from __future__ import annotations
 
 from typing import (
     Any,
-    Generic,
     Literal,
-    Optional,
     Protocol,
     TypedDict,
     TypeVar,
@@ -343,7 +341,7 @@ class MediaWikiPage(Protocol):
         """
         ...
 
-    def redirects_to(self) -> Optional[str]:
+    def redirects_to(self) -> str | None:
         """
         Get the redirect target if this page is a redirect.
 
@@ -495,10 +493,10 @@ class EditResult(TypedDict):
 
     success: bool
     page_title: str
-    old_revision: Optional[int]
-    new_revision: Optional[int]
+    old_revision: int | None
+    new_revision: int | None
     timestamp: str
-    message: Optional[str]
+    message: str | None
 
 
 class CategoryProcessingResult(TypedDict):
@@ -522,7 +520,7 @@ class CategoryProcessingResult(TypedDict):
     pages_checked: int
     pages_skipped: int
     errors: list[str]
-    skipped_reason: Optional[str]
+    skipped_reason: str | None
 
 
 # =============================================================================

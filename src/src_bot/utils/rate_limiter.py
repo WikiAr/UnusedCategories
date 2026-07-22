@@ -47,7 +47,7 @@ import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from threading import Lock
-from typing import Generator, Optional
+from collections.abc import Generator
 
 from .exceptions import RateLimitError
 
@@ -153,7 +153,7 @@ class SimpleRateLimiter:
             if wait_time > 0:
                 if wait_time > self.max_wait:
                     raise RateLimitError(
-                        f"Required wait time ({wait_time:.2f}s) exceeds " f"maximum ({self.max_wait:.2f}s)",
+                        f"Required wait time ({wait_time:.2f}s) exceeds maximum ({self.max_wait:.2f}s)",
                         retry_after=wait_time,
                         limit_type="rate_limit",
                     )
@@ -172,7 +172,6 @@ class SimpleRateLimiter:
         types. For SimpleRateLimiter, it does nothing.
 
         """
-        pass
 
     def reset(self) -> None:
         """
@@ -205,7 +204,7 @@ class SimpleRateLimiter:
             }
 
     @contextmanager
-    def limit(self) -> Generator[None, None, None]:
+    def limit(self) -> Generator[None]:
         """
         Context manager for rate-limited operations.
 
@@ -226,7 +225,7 @@ class SimpleRateLimiter:
         finally:
             self.release()
 
-    def __enter__(self) -> "SimpleRateLimiter":
+    def __enter__(self) -> SimpleRateLimiter:
         """Enter context manager - acquire rate limit."""
         self.acquire()
         return self
@@ -286,7 +285,7 @@ class TokenBucketRateLimiter:
 
     _tokens: float = field(default=0.0, init=False, repr=False)
     _last_update: float = field(default=0.0, init=False, repr=False)
-    _lock: Optional[Lock] = field(default=None, init=False, repr=False)
+    _lock: Lock | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Initialize the rate limiter after dataclass creation."""
@@ -358,7 +357,7 @@ class TokenBucketRateLimiter:
 
             if wait_time > self.max_wait:
                 raise RateLimitError(
-                    f"Required wait time ({wait_time:.2f}s) exceeds " f"maximum ({self.max_wait:.2f}s)",
+                    f"Required wait time ({wait_time:.2f}s) exceeds maximum ({self.max_wait:.2f}s)",
                     retry_after=wait_time,
                     limit_type="rate_limit",
                 )
@@ -388,7 +387,7 @@ class TokenBucketRateLimiter:
             self._last_update = time.time()
 
     @contextmanager
-    def limit(self, tokens: int = 1) -> Generator[None, None, None]:
+    def limit(self, tokens: int = 1) -> Generator[None]:
         """
         Context manager for rate-limited operations.
 
@@ -407,7 +406,7 @@ class TokenBucketRateLimiter:
             self.release(tokens)
             raise
 
-    def __enter__(self) -> "TokenBucketRateLimiter":
+    def __enter__(self) -> TokenBucketRateLimiter:
         """Enter context manager."""
         self.acquire()
         return self
@@ -502,7 +501,7 @@ class AdaptiveRateLimiter:
                     self._limiter = SimpleRateLimiter(calls_per_second=new_rate)
                 self._consecutive_successes = 0
 
-    def on_rate_limited(self, retry_after: Optional[float] = None) -> None:
+    def on_rate_limited(self, retry_after: float | None = None) -> None:
         """
         Called when an API request is rate-limited.
 
@@ -528,7 +527,7 @@ class AdaptiveRateLimiter:
         self,
         response: dict,
         *,
-        retry_after_header: Optional[str] = None,
+        retry_after_header: str | None = None,
     ) -> None:
         """
         Update rate based on API response.
@@ -554,7 +553,7 @@ class AdaptiveRateLimiter:
             self.on_success()
 
     @contextmanager
-    def limit(self) -> Generator[None, None, None]:
+    def limit(self) -> Generator[None]:
         """Context manager for rate-limited operations."""
         self.acquire()
         try:
@@ -564,7 +563,7 @@ class AdaptiveRateLimiter:
             self.on_rate_limited()
             raise
 
-    def __enter__(self) -> "AdaptiveRateLimiter":
+    def __enter__(self) -> AdaptiveRateLimiter:
         self.acquire()
         return self
 
@@ -612,7 +611,7 @@ def create_rate_limiter(
     }
 
     if strategy not in strategies:
-        raise ValueError(f"Unknown strategy: {strategy}. " f"Available: {', '.join(strategies.keys())}")
+        raise ValueError(f"Unknown strategy: {strategy}. Available: {', '.join(strategies.keys())}")
 
     return strategies[strategy](**kwargs)
 

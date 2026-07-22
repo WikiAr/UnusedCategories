@@ -1,4 +1,3 @@
-import pytest
 
 from src.src_bot.utils import (
     en_page_has_category_in_text,

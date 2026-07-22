@@ -45,7 +45,8 @@ import logging
 import os
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 import pywikibot
 
@@ -150,7 +151,7 @@ class Credentials:
             raise CredentialError("Password cannot be empty", credential_type="password")
 
     @classmethod
-    def from_env(cls) -> "Credentials":
+    def from_env(cls) -> Credentials:
         """
         Load credentials from environment variables.
 
@@ -235,11 +236,11 @@ class BotConfig:
     log_level: LogLevel = LogLevel.INFO
 
     # Credentials (loaded separately)
-    credentials: Optional[Credentials] = None
+    credentials: Credentials | None = None
 
     # Internal state
     _edits_made: int = field(default=0, init=False, repr=False)
-    _approval_handler: Optional[Callable[[str, str, str], ApprovalDecision]] = field(
+    _approval_handler: Callable[[str, str, str], ApprovalDecision] | None = field(
         default=None, init=False, repr=False
     )
 
@@ -262,7 +263,7 @@ class BotConfig:
         return self._edits_made
 
     @property
-    def edits_remaining(self) -> Optional[int]:
+    def edits_remaining(self) -> int | None:
         """
         Get the number of edits remaining, or None if unlimited.
 
@@ -409,7 +410,7 @@ class BotConfig:
         pywikibot.showDiff(old_text, new_text)
         logger.info(f"{'='*60}")
 
-        logger.info(f"<<green>> Target: {page_title}, " f"Options: [y]es / [n]o / [a]ll (approve all remaining)")
+        logger.info(f"<<green>> Target: {page_title}, Options: [y]es / [n]o / [a]ll (approve all remaining)")
 
         try:
             response = input("Confirm edit? [Y/n/a]: ").strip().lower()
@@ -433,7 +434,7 @@ class BotConfig:
     # -------------------------------------------------------------------------
 
     @classmethod
-    def from_env(cls) -> "BotConfig":
+    def from_env(cls) -> BotConfig:
         """
         Create a BotConfig from environment variables.
 
@@ -488,7 +489,7 @@ class BotConfig:
         )
 
     @classmethod
-    def for_interactive(cls) -> "BotConfig":
+    def for_interactive(cls) -> BotConfig:
         """
         Create a config for interactive use.
 
@@ -506,7 +507,7 @@ class BotConfig:
         )
 
     @classmethod
-    def for_production(cls) -> "BotConfig":
+    def for_production(cls) -> BotConfig:
         """
         Create a config for production use.
 
