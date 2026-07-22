@@ -353,7 +353,7 @@ def load_credentials() -> tuple[str, str]:
         raise CredentialError(
             "Credentials not found. Please set WIKIPEDIA_BOT_USERNAME and "
             "WIKIPEDIA_BOT_PASSWORD environment variables."
-        )
+        ) from None
 
 
 def connect_to_wikipedia(

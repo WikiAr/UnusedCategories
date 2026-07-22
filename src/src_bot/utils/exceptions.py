@@ -44,7 +44,6 @@ Notes:
 
 from __future__ import annotations
 
-
 # =============================================================================
 # Base Exception
 # =============================================================================
@@ -117,7 +116,6 @@ class ConfigurationError(BotError):
         ... )
 
     """
-
 
 
 class CredentialError(ConfigurationError):

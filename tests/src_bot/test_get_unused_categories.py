@@ -2,7 +2,6 @@
 """ """
 
 
-
 class FakeSite:
     def __init__(self, response) -> None:
         self._response = response

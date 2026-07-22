@@ -43,10 +43,10 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any
-from collections.abc import Callable
 
 import pywikibot
 
@@ -240,9 +240,7 @@ class BotConfig:
 
     # Internal state
     _edits_made: int = field(default=0, init=False, repr=False)
-    _approval_handler: Callable[[str, str, str], ApprovalDecision] | None = field(
-        default=None, init=False, repr=False
-    )
+    _approval_handler: Callable[[str, str, str], ApprovalDecision] | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""

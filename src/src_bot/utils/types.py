@@ -44,7 +44,6 @@ from typing import (
     Protocol,
     TypedDict,
     TypeVar,
-    Union,
     runtime_checkable,
 )
 
@@ -527,9 +526,6 @@ class CategoryProcessingResult(TypedDict):
 # Union Types
 # =============================================================================
 
-# A page can be identified by title or by a page object
-PageIdentifier = Union[str, MediaWikiPage]
-
 # Note: For a generic Result type, use the following pattern in your code:
 # Result = Union[Tuple[T, None], Tuple[None, Exception]]
 # This is not defined here because Python doesn't support generic aliases at runtime.
@@ -634,8 +630,6 @@ __all__ = [
     "PageAccessor",
     "MediaWikiPage",
     "MediaWikiSite",
-    # Union types
-    "PageIdentifier",
     # Helper functions
     "is_valid_page",
     "is_valid_site",
