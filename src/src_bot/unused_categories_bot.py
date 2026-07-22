@@ -224,7 +224,7 @@ def is_hidden_category(category_page: Page) -> bool:
 
         if "query" in result and "pages" in result["query"]:
             pages = result["query"]["pages"]
-            for page_id, page_data in pages.items():
+            for _page_id, page_data in pages.items():
                 if "categoryinfo" in page_data:
                     return page_data["categoryinfo"].get("hidden", False)
     except mwclient.errors.APIError as e:
