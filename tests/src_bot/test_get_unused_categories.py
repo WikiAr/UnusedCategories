@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """ """
 
-import pytest
-
 
 class FakeSite:
     def __init__(self, response) -> None:
@@ -18,7 +16,7 @@ class TestGetUnusedCategories:
     """Test the unused categories fetching functionality."""
 
     def test_get_unused_categories_returns_results(self) -> None:
-        from src.unused_categories_bot import get_unused_categories
+        from src.src_bot.unused_categories_bot import get_unused_categories
 
         site = FakeSite(
             {
@@ -50,7 +48,7 @@ class TestGetUnusedCategories:
         assert categories[1] == "تصنيف:علوم", str(categories)
 
     def test_get_unused_categories_empty_results(self) -> None:
-        from src.unused_categories_bot import get_unused_categories
+        from src.src_bot.unused_categories_bot import get_unused_categories
 
         site = FakeSite(
             {
@@ -67,7 +65,7 @@ class TestGetUnusedCategories:
         assert categories == []
 
     def test_get_unused_categories_missing_query(self) -> None:
-        from src.unused_categories_bot import get_unused_categories
+        from src.src_bot.unused_categories_bot import get_unused_categories
 
         site = FakeSite({})
         categories = get_unused_categories(site, limit=10)

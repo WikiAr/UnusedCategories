@@ -40,13 +40,10 @@ from __future__ import annotations
 
 from typing import (
     Any,
-    Generic,
     Literal,
-    Optional,
     Protocol,
     TypedDict,
     TypeVar,
-    Union,
     runtime_checkable,
 )
 
@@ -343,7 +340,7 @@ class MediaWikiPage(Protocol):
         """
         ...
 
-    def redirects_to(self) -> Optional[str]:
+    def redirects_to(self) -> str | None:
         """
         Get the redirect target if this page is a redirect.
 
@@ -495,10 +492,10 @@ class EditResult(TypedDict):
 
     success: bool
     page_title: str
-    old_revision: Optional[int]
-    new_revision: Optional[int]
+    old_revision: int | None
+    new_revision: int | None
     timestamp: str
-    message: Optional[str]
+    message: str | None
 
 
 class CategoryProcessingResult(TypedDict):
@@ -522,15 +519,12 @@ class CategoryProcessingResult(TypedDict):
     pages_checked: int
     pages_skipped: int
     errors: list[str]
-    skipped_reason: Optional[str]
+    skipped_reason: str | None
 
 
 # =============================================================================
 # Union Types
 # =============================================================================
-
-# A page can be identified by title or by a page object
-PageIdentifier = Union[str, MediaWikiPage]
 
 # Note: For a generic Result type, use the following pattern in your code:
 # Result = Union[Tuple[T, None], Tuple[None, Exception]]
@@ -636,8 +630,6 @@ __all__ = [
     "PageAccessor",
     "MediaWikiPage",
     "MediaWikiSite",
-    # Union types
-    "PageIdentifier",
     # Helper functions
     "is_valid_page",
     "is_valid_site",

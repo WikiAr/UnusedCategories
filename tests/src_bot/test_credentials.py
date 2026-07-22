@@ -11,8 +11,8 @@ class TestCredentialLoading:
 
     def test_credentials_missing(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that missing credentials raises an error."""
-        from src.unused_categories_bot import load_credentials
-        from src.utils.exceptions import CredentialError
+        from src.src_bot.unused_categories_bot import load_credentials
+        from src.src_bot.utils.exceptions import CredentialError
 
         monkeypatch.delenv("WIKIPEDIA_BOT_USERNAME", raising=False)
         monkeypatch.delenv("WIKIPEDIA_BOT_PASSWORD", raising=False)
@@ -23,7 +23,7 @@ class TestCredentialLoading:
 
     def test_credentials_present(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that credentials are loaded correctly."""
-        from src.unused_categories_bot import load_credentials
+        from src.src_bot.unused_categories_bot import load_credentials
 
         monkeypatch.setenv("WIKIPEDIA_BOT_USERNAME", "test_user")
         monkeypatch.setenv("WIKIPEDIA_BOT_PASSWORD", "test_pass")

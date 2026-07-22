@@ -44,8 +44,6 @@ Notes:
 
 from __future__ import annotations
 
-from typing import Optional
-
 # =============================================================================
 # Base Exception
 # =============================================================================
@@ -74,7 +72,7 @@ class BotError(Exception):
     def __init__(
         self,
         message: str,
-        cause: Optional[Exception] = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a BotError.
@@ -119,8 +117,6 @@ class ConfigurationError(BotError):
 
     """
 
-    pass
-
 
 class CredentialError(ConfigurationError):
     """
@@ -144,8 +140,8 @@ class CredentialError(ConfigurationError):
     def __init__(
         self,
         message: str,
-        credential_type: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        credential_type: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a CredentialError.
@@ -191,10 +187,10 @@ class APIError(BotError):
     def __init__(
         self,
         message: str,
-        operation: Optional[str] = None,
-        api_code: Optional[str] = None,
-        api_info: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        operation: str | None = None,
+        api_code: str | None = None,
+        api_info: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize an APIError.
@@ -247,9 +243,9 @@ class RateLimitError(APIError):
     def __init__(
         self,
         message: str = "API rate limit exceeded",
-        retry_after: Optional[float] = None,
-        limit_type: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        retry_after: float | None = None,
+        limit_type: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a RateLimitError.
@@ -287,8 +283,8 @@ class ConnectionError(APIError):
     def __init__(
         self,
         message: str = "Failed to connect to Wikipedia API",
-        site_url: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        site_url: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a ConnectionError.
@@ -323,8 +319,8 @@ class ProcessingError(BotError):
     def __init__(
         self,
         message: str,
-        item: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        item: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a ProcessingError.
@@ -361,8 +357,8 @@ class CategoryProcessingError(ProcessingError):
     def __init__(
         self,
         message: str,
-        category: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        category: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a CategoryProcessingError.
@@ -406,9 +402,9 @@ class PageProcessingError(ProcessingError):
     def __init__(
         self,
         message: str,
-        page_title: Optional[str] = None,
-        category: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        page_title: str | None = None,
+        category: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a PageProcessingError.
@@ -459,9 +455,9 @@ class EditError(ProcessingError):
     def __init__(
         self,
         message: str,
-        page_title: Optional[str] = None,
-        edit_summary: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        page_title: str | None = None,
+        edit_summary: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize an EditError.
@@ -506,9 +502,9 @@ class ValidationError(BotError):
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
-        value: Optional[str] = None,
-        cause: Optional[Exception] = None,
+        field: str | None = None,
+        value: str | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Initialize a ValidationError.

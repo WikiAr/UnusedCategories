@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Final, Optional  # , TYPE_CHECKING
+from typing import Final  # , TYPE_CHECKING
 
 import mwclient
 import mwclient.errors
 import pywikibot
+from mwclient.page import Page
 
 from .utils import (
     category_in_text,
@@ -52,7 +53,7 @@ DEFAULT_LIMIT: Final[int] = DEFAULT_CATEGORY_LIMIT
 # =============================================================================
 
 # Global config instance - will be replaced by parameter passing
-_config: Optional[BotConfig] = None
+_config: BotConfig | None = None
 
 # Legacy global state (deprecated - use BotConfig instead)
 _ask_mode: bool = False
@@ -170,7 +171,7 @@ def confirm_edit(page_title: str, old_text: str, new_text: str) -> bool:
     logger.info(f"{'='*60}")
 
     # Prompt for confirmation
-    logger.info(f"<<green>> Target: {page_title}, " f"Options: [y]es / [n]o / [a]ll (approve all remaining)")
+    logger.info(f"<<green>> Target: {page_title}, Options: [y]es / [n]o / [a]ll (approve all remaining)")
 
     try:
         response = input("Confirm edit? [Y/n/a]: ").strip().lower()
@@ -199,7 +200,7 @@ def confirm_edit(page_title: str, old_text: str, new_text: str) -> bool:
 # =============================================================================
 
 
-def is_hidden_category(category_page: mwclient.page.Page) -> bool:
+def is_hidden_category(category_page: Page) -> bool:
     """
     Check if a category is a hidden category on Wikipedia.
 
@@ -223,7 +224,7 @@ def is_hidden_category(category_page: mwclient.page.Page) -> bool:
 
         if "query" in result and "pages" in result["query"]:
             pages = result["query"]["pages"]
-            for page_id, page_data in pages.items():
+            for _page_id, page_data in pages.items():
                 if "categoryinfo" in page_data:
                     return page_data["categoryinfo"].get("hidden", False)
     except mwclient.errors.APIError as e:
@@ -234,7 +235,7 @@ def is_hidden_category(category_page: mwclient.page.Page) -> bool:
     return False
 
 
-def should_skip_ar_category(category_page: mwclient.page.Page) -> bool:
+def should_skip_ar_category(category_page: Page) -> bool:
     """
     Determine if an Arabic category should be skipped during processing.
 
@@ -263,7 +264,7 @@ def should_skip_ar_category(category_page: mwclient.page.Page) -> bool:
     return False
 
 
-def should_skip_en_category(category_page: mwclient.page.Page) -> bool:
+def should_skip_en_category(category_page: Page) -> bool:
     """
     Determine if an English category should be skipped during processing.
 
@@ -297,7 +298,7 @@ def should_skip_en_category(category_page: mwclient.page.Page) -> bool:
 # =============================================================================
 
 
-def is_redirect_page(page: mwclient.page.Page) -> bool:
+def is_redirect_page(page: Page) -> bool:
     """
     Check if a page is a redirect page.
 
@@ -352,14 +353,14 @@ def load_credentials() -> tuple[str, str]:
         raise CredentialError(
             "Credentials not found. Please set WIKIPEDIA_BOT_USERNAME and "
             "WIKIPEDIA_BOT_PASSWORD environment variables."
-        )
+        ) from None
 
 
 def connect_to_wikipedia(
     site_url: str,
     username: str,
     password: str,
-    rate_limiter: Optional[SimpleRateLimiter] = None,
+    rate_limiter: SimpleRateLimiter | None = None,
 ) -> mwclient.Site:
     """
     Connect and authenticate to a Wikipedia site.
@@ -399,7 +400,7 @@ def connect_to_wikipedia(
 def get_unused_categories(
     site: mwclient.Site,
     limit: int = DEFAULT_LIMIT,
-    rate_limiter: Optional[SimpleRateLimiter] = None,
+    rate_limiter: SimpleRateLimiter | None = None,
 ) -> list[str]:
     """
     Fetch unused categories from Wikipedia.
@@ -455,10 +456,10 @@ def get_unused_categories(
 
 
 def add_category_to_page(
-    page: mwclient.page.Page,
+    page: Page,
     category_name: str,
     summary: str,
-    config: Optional[BotConfig] = None,
+    config: BotConfig | None = None,
     dry_run: bool = False,
 ) -> bool:
     """
@@ -541,8 +542,8 @@ def process_category(
     ar_site: mwclient.Site,
     en_site: mwclient.Site,
     category_name: str,
-    config: Optional[BotConfig] = None,
-    rate_limiter: Optional[SimpleRateLimiter] = None,
+    config: BotConfig | None = None,
+    rate_limiter: SimpleRateLimiter | None = None,
 ) -> int:
     """
     Process a single unused category from Arabic Wikipedia.
@@ -639,7 +640,7 @@ def process_category(
         # Skip if category not in text (possibly added via template)
         # Exception: category pages (namespace 14) may have dynamic categories
         if not category_in_text_result and namespace != 14:
-            logger.info(f"  Skipping {en_page_title}: " f"category not in text (possibly added via template)")
+            logger.info(f"  Skipping {en_page_title}: category not in text (possibly added via template)")
             continue
 
         # Check if Arabic interwiki link exists
