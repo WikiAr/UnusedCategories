@@ -9,7 +9,7 @@ import logging
 import os
 import re
 import sys
-from logging.handlers import WatchedFileHandler
+from logging.handlers import TimedRotatingFileHandler, WatchedFileHandler
 from pathlib import Path
 from typing import Any
 
@@ -54,7 +54,7 @@ def get_color_table() -> dict[str, str]:
     return data
 
 
-def format_colored_text(textm: str) -> str:
+def format_colored_text(textm: str | Any) -> str:
     """
     Prints the given text with color formatting.
 
@@ -63,6 +63,10 @@ def format_colored_text(textm: str) -> str:
 
     :param textm: The text to print. Can contain color tags.
     """
+    # If the input is not a string, print it as is and return
+    if not isinstance(textm, str):
+        return textm
+
     color_table = get_color_table()
     # Define a pattern for color tags
     _color_pat = r"((:?\w+|previous);?(:?\w+|previous)?)"
@@ -71,10 +75,6 @@ def format_colored_text(textm: str) -> str:
 
     # Initialize a stack for color tags
     color_stack = ["default"]
-
-    # If the input is not a string, print it as is and return
-    if not isinstance(textm, str):
-        return textm
 
     # If the text does not contain any color tags, print it as is and return
     if "\03" not in textm and "<<" not in textm:
@@ -127,8 +127,22 @@ def wrap_color_messages(format_message):
 
     return wrapper
 
+def _daily_log_namer(default_name: str) -> str:
+    """Rename rotated log from 'errors.log.2024-01-15' to '2024-01-15.log'."""
+    directory = os.path.dirname(default_name)
+    basename = os.path.basename(default_name)
+    # default format: "errors.log.YYYY-MM-DD"
+    parts = basename.rsplit(".", 1)
+    if len(parts) == 2:
+        date_part = parts[1]
+        return os.path.join(directory, f"{date_part}.log")
+    return default_name
 
-def prepare_log_file(log_file: str | None, project_logger: logging.Logger) -> Path | None:
+
+def prepare_log_file(
+    log_file: str | None,
+    project_logger: logging.Logger,
+) -> Path | None:
     """
     Prepare the log file path and create parent directories if needed.
     """
@@ -149,6 +163,7 @@ def setup_file_handler(
     project_logger: logging.Logger,
     log_file: Path | None,
     level: int,
+    daily_rotation: bool = False,
 ) -> None:
     if not log_file:
         return
@@ -158,7 +173,18 @@ def setup_file_handler(
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     # file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
-    file_handler = WatchedFileHandler(log_file, mode="a", encoding="utf-8")
+    if daily_rotation:
+        file_handler = TimedRotatingFileHandler(
+            log_file,
+            when="midnight",
+            interval=1,
+            backupCount=90,
+            encoding="utf-8",
+            utc=True,
+        )
+        file_handler.namer = _daily_log_namer
+    else:
+        file_handler = WatchedFileHandler(log_file, mode="a", encoding="utf-8")
     file_handler.setFormatter(file_formatter)
     file_handler.setLevel(level)
     project_logger.addHandler(file_handler)
@@ -170,6 +196,7 @@ def setup_logging(
     log_file: str | None = None,
     error_log_file: str | None = None,
     use_colorlog: bool = False,
+    daily_rotation: bool = False,
 ) -> None:
     """
     Configure logging for the entire project namespace only.
@@ -178,6 +205,9 @@ def setup_logging(
 
     if project_logger.handlers:
         return
+
+    if use_colorlog is None:
+        use_colorlog = sys.stderr.isatty()
 
     numeric_level = getattr(logging, level.upper(), logging.INFO) if isinstance(level, str) else level
     project_logger.setLevel(numeric_level)
@@ -222,7 +252,12 @@ def setup_logging(
     if error_log_file:
         error_log_file_path = prepare_log_file(error_log_file, project_logger)
         if error_log_file_path:
-            setup_file_handler(project_logger, error_log_file_path, logging.WARNING)
+            setup_file_handler(
+                project_logger,
+                error_log_file_path,
+                logging.WARNING,
+                daily_rotation=daily_rotation,
+            )
 
 
 __all__ = [
