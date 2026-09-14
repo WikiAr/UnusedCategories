@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from .entry_bot import main_entry
-from .logging_config import setup_logging
+from .logger_config import setup_logging
 
 level = "DEBUG" if ("debug" in sys.argv or "DEBUG" in sys.argv) else "INFO"
 print(f"{level=}")
